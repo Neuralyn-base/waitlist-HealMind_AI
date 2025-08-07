@@ -167,13 +167,13 @@ body{
   box-sizing: border-box;
 }
 .intro-block-full h1 {
-  font-size: 4.5rem;
+  font-size: 7rem;
   margin-bottom: 0.5em;
   position: relative;
   z-index: 2;
 }
 .intro-block-full p {
-  font-size: 2.1rem;
+  font-size: 2.4rem;
   font-weight: 400;
   position: relative;
   z-index: 2;
@@ -223,6 +223,70 @@ body{
 .context-text-animate {
     will-change: opacity, transform;
     backface-visibility: hidden;
+}
+
+.context-text-scale {
+    will-change: opacity, transform;
+    backface-visibility: hidden;
+    transform-origin: left center;
+}
+
+.context-text-scale b {
+    color: #8B5CF6;
+    transition: color 0.3s ease;
+}
+
+.context-text-scale:hover b {
+    color: #A78BFA;
+}
+
+.context-text-scribble {
+    will-change: opacity, transform;
+    backface-visibility: hidden;
+    position: relative;
+}
+
+.context-text-scribble::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent 0%, #8B5CF6 50%, transparent 100%);
+    background-size: 200% 100%;
+    background-position: -200% 0;
+    animation: scribble 2s ease-out forwards;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.context-text-scribble.animate::before {
+    opacity: 1;
+}
+
+@keyframes scribble {
+    0% {
+        background-position: -200% 0;
+        opacity: 1;
+    }
+    50% {
+        background-position: 0% 0;
+        opacity: 1;
+    }
+    100% {
+        background-position: 200% 0;
+        opacity: 0;
+    }
+}
+
+.context-text-scribble b {
+    color: #8B5CF6;
+    transition: color 0.3s ease;
+}
+
+.context-text-scribble:hover b {
+    color: #A78BFA;
 }
 
 .context-text-animate b {
@@ -288,10 +352,11 @@ body{
     min-height: 100vh;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     background: #181818;
-    padding: 0 6vw;
+    padding: 0 0 0 6vw;
     box-sizing: border-box;
+    position: relative;
 }
 
 /* Custom scrollbar styling - Left side wall effect */
@@ -329,6 +394,15 @@ html {
 
 .typewriter-text {
   overflow: hidden;
+}
+
+.typewriter-text b {
+  color: #8B5CF6;
+  transition: color 0.3s ease;
+}
+
+.typewriter-text:hover b {
+  color: #A78BFA;
 }
 
 .cursor {
