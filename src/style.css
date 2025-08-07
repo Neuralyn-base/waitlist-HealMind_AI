@@ -1,0 +1,248 @@
+*{
+    border:0px;
+    margin:0px;
+    padding:0px;
+}
+
+body{
+    width:100%;
+    height:100vh;   
+    background: #181818;
+    color: #fff;
+}
+
+.parallax{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    font-weight:bold;
+    font-size:1vw;
+    color:white;
+    width:100%;
+    height:100vh;
+    background: #181818 !important;
+    color: #fff;
+}
+
+#root{
+    width:100%;
+    height:100vh;
+}
+
+#FirstComponent{
+    width:100%;
+    height:100vh;
+}       
+
+.h2{
+    font-size:60px;
+}
+
+#parallax1{
+    background:red;
+    background-image:url("./assets/round_table_therapy.jpg");
+    background-size:250% auto;
+    background-position: center center;
+    /* background-attachment: fixed; */
+
+}
+#parallax2{
+    background:blue;
+}   
+#parallax3{
+    background:green;
+    background-size:105% auto;
+    background-position: center center;
+    /* background-repeat: no-repeat; */
+    /* background-attachment: fixed;  */
+    /* the above property only works on , background-image property, meaning it can only work on images and gradients
+    backgroundcolor 
+    the background-attachment property can take up three different values ,
+    ie.
+    1 - fixed : meaning the attackment is gonna be attached to the viewport itself and not the container it is attached to.
+    2 - scroll : this the default parameter, scroll means that the attaachment(image/gradient) moves with its container.
+    3 - background-attachment: local
+        The background image scrolls with the element's content
+        if the element has its own scrollbar, the background moves with that content
+    */
+    background-image:url('./assets/therapy.jpg');
+
+    /* background-image:linear-gradient(red,green); */
+    
+    
+}
+#parallax4{
+    background:yellow;
+}
+
+.cursor-follower {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 30px;
+  height: 30px;
+  background: rgba(0,0,0,0.15);
+  border: 2px solid #222;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transition: background 0.2s, border 0.2s;
+  mix-blend-mode: multiply;
+}
+
+.magnetic-btn {
+  position: relative;
+  overflow: hidden;
+  padding: 18px 40px;
+  font-size: 1.2rem;
+  background: #222;
+  color: #fff;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  transition: transform 0.2s cubic-bezier(.22,1,.36,1);
+}
+
+.magnetic-btn .ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  background: rgba(255,255,255,0.4);
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transition: transform 0.5s, opacity 0.5s;
+}
+
+.magnetic-btn .ripple.show {
+  transform: scale(2.5);
+  opacity: 1;
+  transition: transform 0.5s, opacity 0.5s;
+}
+
+.particle-canvas {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+.intro-block-full {
+  position: relative;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  background: transparent;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  text-align: left;
+  margin: 0;
+  padding: 0 0 12vw 6vw;
+  box-sizing: border-box;
+}
+.intro-block-full h1 {
+  font-size: 4.5rem;
+  margin-bottom: 0.5em;
+  position: relative;
+  z-index: 2;
+}
+.intro-block-full p {
+  font-size: 2.1rem;
+  font-weight: 400;
+  position: relative;
+  z-index: 2;
+}
+
+.intro-title {
+  transform: translateX(-100%);
+  transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1);
+  will-change: transform;
+}
+.intro-title.animate-in {
+  transform: translateX(0);
+}
+.intro-subtitle {
+  transform: translateX(-100%);
+  transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1) 1s;
+  will-change: transform;
+}
+.intro-subtitle.animate-in {
+  transform: translateX(0);
+}
+
+.context-block {
+    width: 100vw;
+    height: 100vh;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+}
+.context-content {
+    background: rgba(24, 24, 24, 0.85);
+    color: #fff;
+    border-radius: 24px;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+    padding: 3.5rem 3rem;
+    font-size: 1.45rem;
+    line-height: 1.7;
+    max-width: 800px;
+    width: 100%;
+    text-align: left;
+}
+
+/* Custom scrollbar styling - Left side wall effect */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: linear-gradient(to bottom, #1F2937, #111827);
+  border-right: 2px solid #374151;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #8B5CF6, #7C3AED);
+  border-radius: 6px;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #A78BFA, #8B5CF6);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
+}
+
+::-webkit-scrollbar-corner {
+  background: #1F2937;
+}
+
+/* For Firefox */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #8B5CF6 #1F2937;
+}
+
+.typewriter-text {
+  overflow: hidden;
+}
+
+.cursor {
+  animation: blink 1s infinite;
+  color: #8B5CF6;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+
+
+
