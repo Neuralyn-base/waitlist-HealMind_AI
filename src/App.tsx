@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -185,35 +185,97 @@ function App() {
   const [section7ActiveLine, setSection7ActiveLine] = useState(0);
   
   useEffect(() => {
+    // Disable scroll restoration to prevent browser from remembering position
     if ('scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'auto';
+      window.history.scrollRestoration = 'manual';
     }
-  }, []);
-  useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      
-      if (isTransitioning) return;
-      
-      setIsTransitioning(true);
-      
-      if (e.deltaY > 0) {
-        // Scroll down - go to next section
-        setCurrentSection(prev => Math.min(prev + 1, 7));
-      } else {
-        // Scroll up - go to previous section
-        setCurrentSection(prev => Math.max(prev - 1, 0));
-      }
-      
-      // Reset transition after animation
-      setTimeout(() => {
-        setIsTransitioning(false);
-      }, 1000);
-    };
     
+    // Force scroll to top
+    window.scrollTo(0, 0);
+    
+    // Always start fresh at section 1 on reload
+    setCurrentSection(0);
+    
+    // Reset all animation states to fresh
+    setTextAnimated(false);
+    setTypingProgress(0);
+    setContextAnimated(false);
+    setContextProgress(0);
+    setSection3Animated(false);
+    setSection3Progress(0);
+    setSection4Animated(false);
+    setSection4Progress(0);
+    setSection5Animated(false);
+    setSection5Progress(0);
+    setSection6Animated(false);
+    setSection6Progress(0);
+    setSection7Animated(false);
+    setSection7Progress(0);
+    
+    // Reset all line-by-line typing states
+    setContextLines([0, 0, 0, 0, 0]);
+    setSection3Lines([0, 0, 0, 0, 0]);
+    setSection4Lines([0, 0, 0, 0]);
+    setSection5Lines([0, 0, 0]);
+    setSection6Lines([0, 0, 0, 0, 0, 0]);
+    setSection7Lines([0, 0, 0]);
+    
+    // Reset all active line states
+    setContextActiveLine(0);
+    setSection3ActiveLine(0);
+    setSection4ActiveLine(0);
+    setSection5ActiveLine(0);
+    setSection6ActiveLine(0);
+    setSection7ActiveLine(0);
+    
+    // Force immediate visual reset to section 1 with a more robust approach
+    setTimeout(() => {
+      const firstComponent = document.getElementById('FirstComponent');
+      if (firstComponent) {
+        firstComponent.style.transform = 'translateY(0vh)';
+        firstComponent.style.transition = 'none';
+        // Force a reflow
+        firstComponent.offsetHeight;
+        setTimeout(() => {
+          firstComponent.style.transition = 'transform 0.8s ease-in-out';
+        }, 10);
+      }
+    }, 0);
+  }, []);
+  const handleWheel = useCallback((e: WheelEvent) => {
+    e.preventDefault();
+    
+    if (isTransitioning) return;
+    
+    if (e.deltaY > 0) {
+      // Scroll down - go to next section
+      setCurrentSection(prev => {
+        // If we're already at the last section (7), don't allow further scrolling
+        if (prev >= 7) {
+          return prev;
+        }
+        setIsTransitioning(true);
+        return prev + 1;
+      });
+    } else {
+      // Scroll up - go to previous section
+      setCurrentSection(prev => {
+        const newSection = Math.max(prev - 1, 0);
+        setIsTransitioning(true);
+        return newSection;
+      });
+    }
+    
+    // Reset transition after animation
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 1000);
+  }, [isTransitioning]);
+
+  useEffect(() => {
     window.addEventListener('wheel', handleWheel, { passive: false });
     return () => window.removeEventListener('wheel', handleWheel);
-  }, [isTransitioning]);
+  }, [handleWheel]);
   useEffect(() => {
     // Start typing animation
     const timer = setTimeout(() => {

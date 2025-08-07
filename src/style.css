@@ -4,11 +4,16 @@
     padding:0px;
 }
 
+html {
+    background: #181818 !important;
+}
+
 body{
     width:100%;
     height:100vh;   
-    background: #181818;
+    background: #181818 !important;
     color: #fff;
+    overflow: hidden;
 }
 
 .parallax{
@@ -203,7 +208,7 @@ body{
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    background: #181818;
+    background: transparent;
     padding: 0 4vw 0 6vw;
     box-sizing: border-box;
 }
@@ -361,37 +366,48 @@ body{
     position: relative;
 }
 
-/* Custom scrollbar styling - Left side wall effect */
+/* Hide scrollbar completely to prevent scrollbar clicks */
 ::-webkit-scrollbar {
-  width: 12px;
+  width: 0px;
+  display: none;
 }
 
 ::-webkit-scrollbar-track {
-  background: linear-gradient(to bottom, #1F2937, #111827);
-  border-right: 2px solid #374151;
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  display: none;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #8B5CF6, #7C3AED);
-  border-radius: 6px;
-  border: 1px solid rgba(139, 92, 246, 0.4);
-  box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
+  display: none;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #A78BFA, #8B5CF6);
-  box-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
+  display: none;
 }
 
 ::-webkit-scrollbar-corner {
-  background: #1F2937;
+  display: none;
 }
 
 /* For Firefox */
 html {
-  scrollbar-width: thin;
-  scrollbar-color: #8B5CF6 #1F2937;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Ensure body maintains dark background */
+body {
+  width: 100%;
+  height: 100vh;   
+  background: #181818 !important;
+  color: #fff;
+  overflow: hidden;
+}
+
+/* Ensure root maintains dark background */
+#root {
+  width: 100%;
+  height: 100vh;
+  background: #181818 !important;
 }
 
 .typewriter-text {
