@@ -167,6 +167,22 @@ function App() {
   const [section7Animated, setSection7Animated] = useState(false);
   const [section7Progress, setSection7Progress] = useState(0);
   
+  // New state for line-by-line typing
+  const [contextLines, setContextLines] = useState([0, 0, 0, 0]); // [line1, line2, line3, line4]
+  const [section3Lines, setSection3Lines] = useState([0, 0, 0, 0, 0]); // [line1, line2, line3, line4, line5]
+  const [section4Lines, setSection4Lines] = useState([0, 0, 0, 0]); // [line1, line2, line3, line4]
+  const [section5Lines, setSection5Lines] = useState([0, 0, 0]); // [line1, line2, line3]
+  const [section6Lines, setSection6Lines] = useState([0, 0, 0, 0, 0, 0]); // [line1, line2, line3, line4, line5, line6]
+  const [section7Lines, setSection7Lines] = useState([0, 0, 0]); // [line1, line2, line3]
+  
+  // State to track which line is currently being typed
+  const [contextActiveLine, setContextActiveLine] = useState(0);
+  const [section3ActiveLine, setSection3ActiveLine] = useState(0);
+  const [section4ActiveLine, setSection4ActiveLine] = useState(0);
+  const [section5ActiveLine, setSection5ActiveLine] = useState(0);
+  const [section6ActiveLine, setSection6ActiveLine] = useState(0);
+  const [section7ActiveLine, setSection7ActiveLine] = useState(0);
+  
   useEffect(() => {
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'auto';
@@ -203,14 +219,42 @@ function App() {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !contextAnimated) {
             setContextAnimated(true);
-            let progress = 0;
-            const interval = setInterval(() => {
-              progress += 2;
-              setContextProgress(progress);
-              if (progress >= 100) {
-                clearInterval(interval);
-              }
-            }, 50);
+            
+            // Start line-by-line typing
+            const lineTexts = [
+              'The world is overwhelmed.',
+              'Burnout, overstimulation, and emotional fatigue have become part of everyday life. But support systems aren\'t scaling fast enough — especially in moments of silence, in the midnight thoughts, or when someone needs to be heard right now.',
+              'HealMind_AI was born from this gap.',
+              'It\'s not a replacement. It\'s not a shortcut.',
+              'It\'s a new dimension of emotional support — a highly intuitive, deeply aware voice-based AI that listens, learns, and responds with context, care, and calm.'
+            ];
+            
+            let currentLine = 0;
+            let currentChar = 0;
+            
+                         const typeNextLine = () => {
+               if (currentLine >= lineTexts.length) return;
+               
+               setContextActiveLine(currentLine);
+               
+               const interval = setInterval(() => {
+                 currentChar++;
+                 setContextLines(prev => {
+                   const newLines = [...prev];
+                   newLines[currentLine] = currentChar;
+                   return newLines;
+                 });
+                 
+                 if (currentChar >= lineTexts[currentLine].length) {
+                   clearInterval(interval);
+                   currentLine++;
+                   currentChar = 0;
+                   setTimeout(typeNextLine, 200); // Pause between lines
+                 }
+               }, 15);
+             };
+            
+            typeNextLine();
           }
         });
       }, { threshold: 0.3 });
@@ -228,14 +272,42 @@ function App() {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !section3Animated) {
             setSection3Animated(true);
-            let progress = 0;
-            const interval = setInterval(() => {
-              progress += 2;
-              setSection3Progress(progress);
-              if (progress >= 100) {
-                clearInterval(interval);
-              }
-            }, 50);
+            
+            // Start line-by-line typing
+            const lineTexts = [
+              'Always Available. Always Respectful. Always Yours.',
+              'HealMind_AI doesn\'t just respond — it adapts to your emotional tone, your silence, and your pace. With unparalleled sensitivity and clarity, it becomes a companion for your mind — built to assist without intruding, support without diagnosing, and understand without labeling.',
+              '• Works in real time, through conversation.',
+              '• Prioritizes your privacy and emotional safety.',
+              '• Designed to scale personal reflection and daily balance.'
+            ];
+            
+            let currentLine = 0;
+            let currentChar = 0;
+            
+                         const typeNextLine = () => {
+               if (currentLine >= lineTexts.length) return;
+               
+               setSection3ActiveLine(currentLine);
+               
+               const interval = setInterval(() => {
+                 currentChar++;
+                 setSection3Lines(prev => {
+                   const newLines = [...prev];
+                   newLines[currentLine] = currentChar;
+                   return newLines;
+                 });
+                 
+                 if (currentChar >= lineTexts[currentLine].length) {
+                   clearInterval(interval);
+                   currentLine++;
+                   currentChar = 0;
+                   setTimeout(typeNextLine, 200); // Pause between lines
+                 }
+               }, 15);
+             };
+            
+            typeNextLine();
           }
         });
       }, { threshold: 0.3 });
@@ -253,14 +325,41 @@ function App() {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !section4Animated) {
             setSection4Animated(true);
-            let progress = 0;
-            const interval = setInterval(() => {
-              progress += 2;
-              setSection4Progress(progress);
-              if (progress >= 100) {
-                clearInterval(interval);
-              }
-            }, 50);
+            
+            // Start line-by-line typing
+            const lineTexts = [
+              'A New Standard for Emotional Intelligence',
+              'HealMind_AI is not a chatbot. It\'s not an app that parrots back scripted affirmations. It\'s a thoughtfully engineered system designed to support how people actually feel, especially when they can\'t always put it into words.',
+              'Behind the scenes, it interprets, adapts, and speaks — not just from data, but from a deep architecture trained to understand nuance, tone, and timing.',
+              'All of this is built to feel invisible — just natural, intuitive support that\'s with you when you need it.'
+            ];
+            
+            let currentLine = 0;
+            let currentChar = 0;
+            
+                         const typeNextLine = () => {
+               if (currentLine >= lineTexts.length) return;
+               
+               setSection4ActiveLine(currentLine);
+               
+               const interval = setInterval(() => {
+                 currentChar++;
+                 setSection4Lines(prev => {
+                   const newLines = [...prev];
+                   newLines[currentLine] = currentChar;
+                   return newLines;
+                 });
+                 
+                 if (currentChar >= lineTexts[currentLine].length) {
+                   clearInterval(interval);
+                   currentLine++;
+                   currentChar = 0;
+                   setTimeout(typeNextLine, 200); // Pause between lines
+                 }
+               }, 15);
+             };
+            
+            typeNextLine();
           }
         });
       }, { threshold: 0.3 });
@@ -278,14 +377,40 @@ function App() {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !section5Animated) {
             setSection5Animated(true);
-            let progress = 0;
-            const interval = setInterval(() => {
-              progress += 2;
-              setSection5Progress(progress);
-              if (progress >= 100) {
-                clearInterval(interval);
-              }
-            }, 50);
+            
+            // Start line-by-line typing
+            const lineTexts = [
+              'Designed for This Generation — and the Next',
+              'We believe emotional well-being shouldn\'t be reactive. HealMind_AI is a proactive system — not in place of human connection, but in harmony with it. It meets people where they are: through conversation, on their terms, in their time.',
+              'Whether you\'re a student, entrepreneur, parent, artist, or simply navigating this fast-moving world — HealMind_AI is here to walk with you, not ahead or behind.'
+            ];
+            
+            let currentLine = 0;
+            let currentChar = 0;
+            
+                         const typeNextLine = () => {
+               if (currentLine >= lineTexts.length) return;
+               
+               setSection5ActiveLine(currentLine);
+               
+               const interval = setInterval(() => {
+                 currentChar++;
+                 setSection5Lines(prev => {
+                   const newLines = [...prev];
+                   newLines[currentLine] = currentChar;
+                   return newLines;
+                 });
+                 
+                 if (currentChar >= lineTexts[currentLine].length) {
+                   clearInterval(interval);
+                   currentLine++;
+                   currentChar = 0;
+                   setTimeout(typeNextLine, 200); // Pause between lines
+                 }
+               }, 15);
+             };
+            
+            typeNextLine();
           }
         });
       }, { threshold: 0.3 });
@@ -303,14 +428,43 @@ function App() {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !section6Animated) {
             setSection6Animated(true);
-            let progress = 0;
-            const interval = setInterval(() => {
-              progress += 2;
-              setSection6Progress(progress);
-              if (progress >= 100) {
-                clearInterval(interval);
-              }
-            }, 50);
+            
+            // Start line-by-line typing
+            const lineTexts = [
+              'Built for the Future. Grounded in Responsibility.',
+              'HealMind_AI is developed with deep attention to ethical boundaries, data privacy, and long-term reliability. Every feature is designed with:',
+              '• Security as the foundation, not an afterthought.',
+              '• Compliance with healthcare best practices, from privacy to access.',
+              '• Scalability to grow with users, not grow away from them.',
+              'We\'re not chasing hype. We\'re building trust — line by line, session by session.'
+            ];
+            
+            let currentLine = 0;
+            let currentChar = 0;
+            
+                         const typeNextLine = () => {
+               if (currentLine >= lineTexts.length) return;
+               
+               setSection6ActiveLine(currentLine);
+               
+               const interval = setInterval(() => {
+                 currentChar++;
+                 setSection6Lines(prev => {
+                   const newLines = [...prev];
+                   newLines[currentLine] = currentChar;
+                   return newLines;
+                 });
+                 
+                 if (currentChar >= lineTexts[currentLine].length) {
+                   clearInterval(interval);
+                   currentLine++;
+                   currentChar = 0;
+                   setTimeout(typeNextLine, 200); // Pause between lines
+                 }
+               }, 15);
+            };
+            
+            typeNextLine();
           }
         });
       }, { threshold: 0.3 });
@@ -328,14 +482,40 @@ function App() {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !section7Animated) {
             setSection7Animated(true);
-            let progress = 0;
-            const interval = setInterval(() => {
-              progress += 2;
-              setSection7Progress(progress);
-              if (progress >= 100) {
-                clearInterval(interval);
-              }
-            }, 50);
+            
+            // Start line-by-line typing
+            const lineTexts = [
+              'Join the Waitlist',
+              'Be among the first to experience the future of voice-based emotional intelligence.',
+              'This is not an app launch — this is a movement toward deeper, more present digital care.'
+            ];
+            
+            let currentLine = 0;
+            let currentChar = 0;
+            
+                         const typeNextLine = () => {
+               if (currentLine >= lineTexts.length) return;
+               
+               setSection7ActiveLine(currentLine);
+               
+               const interval = setInterval(() => {
+                 currentChar++;
+                 setSection7Lines(prev => {
+                   const newLines = [...prev];
+                   newLines[currentLine] = currentChar;
+                   return newLines;
+                 });
+                 
+                 if (currentChar >= lineTexts[currentLine].length) {
+                   clearInterval(interval);
+                   currentLine++;
+                   currentChar = 0;
+                   setTimeout(typeNextLine, 200); // Pause between lines
+                 }
+               }, 15);
+            };
+            
+            typeNextLine();
           }
         });
       }, { threshold: 0.3 });
@@ -419,47 +599,48 @@ function App() {
                   className="typewriter-text"
                   style={{
                     marginBottom: '1.2em',
-                    opacity: contextAnimated ? Math.min(1, (contextProgress - 0) / 25) * contextFade : 0,
+                    opacity: contextAnimated ? contextFade : 0,
                     transition: 'opacity 0.8s ease-out'
                   }}
                 >
-                  <b>The world is overwhelmed.</b>
-                  <br />
-                  {contextAnimated && contextProgress > 10 ? 'Burnout, overstimulation, and emotional fatigue have become part of everyday life. But support systems aren\'t scaling fast enough — especially in moments of silence, in the midnight thoughts, or when someone needs to be heard right now.'.slice(0, Math.floor((contextProgress - 10) / 90 * 150)) : ''}
-                  {contextAnimated && contextProgress > 10 ? <span className="cursor">|</span> : ''}
+                                     <b>{contextAnimated ? 'The world is overwhelmed.'.slice(0, contextLines[0]) : ''}</b>
+                   {contextAnimated && contextActiveLine === 0 && contextLines[0] > 0 && contextLines[0] < 'The world is overwhelmed.'.length ? <span className="cursor">|</span> : ''}
+                   <br />
+                   {contextAnimated && contextLines[1] > 0 ? 'Burnout, overstimulation, and emotional fatigue have become part of everyday life. But support systems aren\'t scaling fast enough — especially in moments of silence, in the midnight thoughts, or when someone needs to be heard right now.'.slice(0, contextLines[1]) : ''}
+                   {contextAnimated && contextActiveLine === 1 && contextLines[1] > 0 && contextLines[1] < 'Burnout, overstimulation, and emotional fatigue have become part of everyday life. But support systems aren\'t scaling fast enough — especially in moments of silence, in the midnight thoughts, or when someone needs to be heard right now.'.length ? <span className="cursor">|</span> : ''}
                 </p>
                                                            <p 
                   className="typewriter-text"
                   style={{
                     marginBottom: '1.2em',
-                    opacity: contextAnimated ? Math.min(1, (contextProgress - 25) / 25) * contextFade : 0,
+                    opacity: contextAnimated ? contextFade : 0,
                     transition: 'opacity 0.8s ease-out'
                   }}
                 >
-                  {contextAnimated && contextProgress > 25 ? 'HealMind_AI was born from this gap.'.slice(0, Math.floor((contextProgress - 25) / 75 * 35)) : ''}
-                  {contextAnimated && contextProgress > 25 ? <span className="cursor">|</span> : ''}
-                </p>
-                               <p 
-                  className="typewriter-text"
-                  style={{
-                    marginBottom: '1.2em',
-                    opacity: contextAnimated ? Math.min(1, (contextProgress - 50) / 25) * contextFade : 0,
-                    transition: 'opacity 0.8s ease-out'
-                  }}
-                >
-                  {contextAnimated && contextProgress > 50 ? 'It\'s not a replacement. It\'s not a shortcut.'.slice(0, Math.floor((contextProgress - 50) / 50 * 45)) : ''}
-                  {contextAnimated && contextProgress > 50 ? <span className="cursor">|</span> : ''}
-                </p>
-                               <p 
-                  className="typewriter-text"
-                  style={{
-                    marginBottom: 0,
-                    opacity: contextAnimated ? Math.min(1, (contextProgress - 75) / 25) * contextFade : 0,
-                    transition: 'opacity 0.8s ease-out'
-                  }}
-                >
-                  {contextAnimated && contextProgress > 75 ? 'It\'s a new dimension of emotional support — a highly intuitive, deeply aware voice-based AI that listens, learns, and responds with context, care, and calm.'.slice(0, Math.floor((contextProgress - 75) / 25 * 120)) : ''}
-                  {contextAnimated && contextProgress > 75 ? <span className="cursor">|</span> : ''}
+                                     {contextAnimated && contextLines[2] > 0 ? 'HealMind_AI was born from this gap.'.slice(0, contextLines[2]) : ''}
+                                     {contextAnimated && contextActiveLine === 2 && contextLines[2] > 0 && contextLines[2] < 'HealMind_AI was born from this gap.'.length ? <span className="cursor">|</span> : ''}
+                 </p>
+                                <p 
+                   className="typewriter-text"
+                   style={{
+                     marginBottom: '1.2em',
+                     opacity: contextAnimated ? contextFade : 0,
+                     transition: 'opacity 0.8s ease-out'
+                   }}
+                 >
+                   {contextAnimated && contextLines[3] > 0 ? 'It\'s not a replacement. It\'s not a shortcut.'.slice(0, contextLines[3]) : ''}
+                   {contextAnimated && contextActiveLine === 3 && contextLines[3] > 0 && contextLines[3] < 'It\'s not a replacement. It\'s not a shortcut.'.length ? <span className="cursor">|</span> : ''}
+                 </p>
+                                <p 
+                   className="typewriter-text"
+                   style={{
+                     marginBottom: 0,
+                     opacity: contextAnimated ? contextFade : 0,
+                     transition: 'opacity 0.8s ease-out'
+                   }}
+                 >
+                   {contextAnimated && contextLines[4] > 0 ? 'It\'s a new dimension of emotional support — a highly intuitive, deeply aware voice-based AI that listens, learns, and responds with context, care, and calm.'.slice(0, contextLines[4]) : ''}
+                   {contextAnimated && contextActiveLine === 4 && contextLines[4] > 0 && contextLines[4] < 'It\'s a new dimension of emotional support — a highly intuitive, deeply aware voice-based AI that listens, learns, and responds with context, care, and calm.'.length ? <span className="cursor">|</span> : ''}
                 </p>
             </div>
           </section>
@@ -469,14 +650,14 @@ function App() {
                 className="typewriter-text" 
                 style={{
                   marginBottom: '1.2em',
-                  opacity: section3Animated ? Math.min(1, (section3Progress - 0) / 25) : 0,
+                  opacity: section3Animated ? 1 : 0,
                   transition: 'opacity 0.8s ease-out'
                 }}
               >
-                                 {section3Animated && section3Progress > 0 ? (
+                                 {section3Animated && section3Lines[0] > 0 ? (
                    <>
                      <b>Always Available. Always Respectful. Always Yours.</b>
-                     {Math.floor((section3Progress - 0) / 25 * 50) > 50 ? <span className="cursor">|</span> : ''}
+                     {section3ActiveLine === 0 && section3Lines[0] < 'Always Available. Always Respectful. Always Yours.'.length ? <span className="cursor">|</span> : ''}
                    </>
                  ) : ''}
               </p>
@@ -484,45 +665,45 @@ function App() {
                 className="typewriter-text" 
                 style={{
                   marginBottom: '1.2em',
-                  opacity: section3Animated ? Math.min(1, (section3Progress - 25) / 25) : 0,
+                  opacity: section3Animated ? 1 : 0,
                   transition: 'opacity 0.8s ease-out'
                 }}
               >
-                {section3Animated && section3Progress > 25 ? 'HealMind_AI doesn\'t just respond — it adapts to your emotional tone, your silence, and your pace. With unparalleled sensitivity and clarity, it becomes a companion for your mind — built to assist without intruding, support without diagnosing, and understand without labeling.'.slice(0, Math.floor((section3Progress - 25) / 75 * 180)) : ''}
-                {section3Animated && section3Progress > 25 ? <span className="cursor">|</span> : ''}
-              </p>
-                           <p 
-                className="typewriter-text" 
-                style={{
-                  marginBottom: '1.2em',
-                  opacity: section3Animated ? Math.min(1, (section3Progress - 50) / 25) : 0,
-                  transition: 'opacity 0.8s ease-out'
-                }}
-              >
-                {section3Animated && section3Progress > 50 ? '• Works in real time, through conversation'.slice(0, Math.floor((section3Progress - 50) / 50 * 40)) : ''}
-                {section3Animated && section3Progress > 50 ? <span className="cursor">|</span> : ''}
-              </p>
-                           <p 
-                className="typewriter-text" 
-                style={{
-                  marginBottom: '1.2em',
-                  opacity: section3Animated ? Math.min(1, (section3Progress - 75) / 25) : 0,
-                  transition: 'opacity 0.8s ease-out'
-                }}
-              >
-                {section3Animated && section3Progress > 75 ? '• Prioritizes your privacy and emotional safety'.slice(0, Math.floor((section3Progress - 75) / 25 * 45)) : ''}
-                {section3Animated && section3Progress > 75 ? <span className="cursor">|</span> : ''}
-              </p>
-                           <p 
-                className="typewriter-text" 
-                style={{
-                  marginBottom: 0,
-                  opacity: section3Animated ? Math.min(1, (section3Progress - 100) / 25) : 0,
-                  transition: 'opacity 0.8s ease-out'
-                }}
-              >
-                {section3Animated && section3Progress > 100 ? '• Designed to scale personal reflection and daily balance'.slice(0, Math.floor((section3Progress - 100) / 25 * 55)) : ''}
-                {section3Animated && section3Progress > 100 ? <span className="cursor">|</span> : ''}
+                                                                   {section3Animated && section3Lines[1] > 0 ? 'HealMind_AI doesn\'t just respond — it adapts to your emotional tone, your silence, and your pace. With unparalleled sensitivity and clarity, it becomes a companion for your mind — built to assist without intruding, support without diagnosing, and understand without labeling.'.slice(0, section3Lines[1]) : ''}
+                                  {section3Animated && section3ActiveLine === 1 && section3Lines[1] > 0 && section3Lines[1] < 'HealMind_AI doesn\'t just respond — it adapts to your emotional tone, your silence, and your pace. With unparalleled sensitivity and clarity, it becomes a companion for your mind — built to assist without intruding, support without diagnosing, and understand without labeling.'.length ? <span className="cursor">|</span> : ''}
+               </p>
+                            <p 
+                 className="typewriter-text" 
+                 style={{
+                   marginBottom: '1.2em',
+                   opacity: section3Animated ? 1 : 0,
+                   transition: 'opacity 0.8s ease-out'
+                 }}
+               >
+                                   {section3Animated && section3Lines[2] > 0 ? '• Works in real time, through conversation.'.slice(0, section3Lines[2]) : ''}
+                  {section3Animated && section3ActiveLine === 2 && section3Lines[2] > 0 && section3Lines[2] < '• Works in real time, through conversation.'.length ? <span className="cursor">|</span> : ''}
+               </p>
+                            <p 
+                 className="typewriter-text" 
+                 style={{
+                   marginBottom: '1.2em',
+                   opacity: section3Animated ? 1 : 0,
+                   transition: 'opacity 0.8s ease-out'
+                 }}
+               >
+                                   {section3Animated && section3Lines[3] > 0 ? '• Prioritizes your privacy and emotional safety.'.slice(0, section3Lines[3]) : ''}
+                  {section3Animated && section3ActiveLine === 3 && section3Lines[3] > 0 && section3Lines[3] < '• Prioritizes your privacy and emotional safety.'.length ? <span className="cursor">|</span> : ''}
+               </p>
+                            <p 
+                 className="typewriter-text" 
+                 style={{
+                   marginBottom: 0,
+                   opacity: section3Animated ? 1 : 0,
+                   transition: 'opacity 0.8s ease-out'
+                 }}
+               >
+                                   {section3Animated && section3Lines[4] > 0 ? '• Designed to scale personal reflection and daily balance.'.slice(0, section3Lines[4]) : ''}
+                  {section3Animated && section3ActiveLine === 4 && section3Lines[4] > 0 && section3Lines[4] < '• Designed to scale personal reflection and daily balance.'.length ? <span className="cursor">|</span> : ''}
               </p>
            </div>
                    </section>
@@ -532,14 +713,14 @@ function App() {
                  className="typewriter-text" 
                  style={{
                    marginBottom: '1.2em',
-                   opacity: section4Animated ? Math.min(1, (section4Progress - 0) / 25) : 0,
+                   opacity: section4Animated ? 1 : 0,
                    transition: 'opacity 0.8s ease-out'
                  }}
                >
-                                   {section4Animated && section4Progress > 0 ? (
+                                   {section4Animated && section4Lines[0] > 0 ? (
                     <>
                       <b>A New Standard for Emotional Intelligence</b>
-                      {Math.floor((section4Progress - 0) / 25 * 45) > 45 ? <span className="cursor">|</span> : ''}
+                      {section4ActiveLine === 0 && section4Lines[0] < 'A New Standard for Emotional Intelligence'.length ? <span className="cursor">|</span> : ''}
                     </>
                   ) : ''}
                </p>
@@ -547,34 +728,34 @@ function App() {
                  className="typewriter-text" 
                  style={{
                    marginBottom: '1.2em',
-                   opacity: section4Animated ? Math.min(1, (section4Progress - 25) / 25) : 0,
+                   opacity: section4Animated ? 1 : 0,
                    transition: 'opacity 0.8s ease-out'
                  }}
                >
-                 {section4Animated && section4Progress > 25 ? 'HealMind_AI is not a chatbot. It\'s not an app that parrots back scripted affirmations. It\'s a thoughtfully engineered system designed to support how people actually feel, especially when they can\'t always put it into words.'.slice(0, Math.floor((section4Progress - 25) / 75 * 160)) : ''}
-                 {section4Animated && section4Progress > 25 ? <span className="cursor">|</span> : ''}
-               </p>
-                             <p 
-                 className="typewriter-text" 
-                 style={{
-                   marginBottom: '1.2em',
-                   opacity: section4Animated ? Math.min(1, (section4Progress - 50) / 25) : 0,
-                   transition: 'opacity 0.8s ease-out'
-                 }}
-               >
-                 {section4Animated && section4Progress > 50 ? 'Behind the scenes, it interprets, adapts, and speaks — not just from data, but from a deep architecture trained to understand nuance, tone, and timing.'.slice(0, Math.floor((section4Progress - 50) / 50 * 120)) : ''}
-                 {section4Animated && section4Progress > 50 ? <span className="cursor">|</span> : ''}
-               </p>
-                             <p 
-                 className="typewriter-text" 
-                 style={{
-                   marginBottom: 0,
-                   opacity: section4Animated ? Math.min(1, (section4Progress - 75) / 25) : 0,
-                   transition: 'opacity 0.8s ease-out'
-                 }}
-               >
-                 {section4Animated && section4Progress > 75 ? 'All of this is built to feel invisible — just natural, intuitive support that\'s with you when you need it.'.slice(0, Math.floor((section4Progress - 75) / 25 * 100)) : ''}
-                 {section4Animated && section4Progress > 75 ? <span className="cursor">|</span> : ''}
+                                                                       {section4Animated && section4Lines[1] > 0 ? 'HealMind_AI is not a chatbot. It\'s not an app that parrots back scripted affirmations. It\'s a thoughtfully engineered system designed to support how people actually feel, especially when they can\'t always put it into words.'.slice(0, section4Lines[1]) : ''}
+                                    {section4Animated && section4ActiveLine === 1 && section4Lines[1] > 0 && section4Lines[1] < 'HealMind_AI is not a chatbot. It\'s not an app that parrots back scripted affirmations. It\'s a thoughtfully engineered system designed to support how people actually feel, especially when they can\'t always put it into words.'.length ? <span className="cursor">|</span> : ''}
+                </p>
+                              <p 
+                  className="typewriter-text" 
+                  style={{
+                    marginBottom: '1.2em',
+                    opacity: section4Animated ? 1 : 0,
+                    transition: 'opacity 0.8s ease-out'
+                  }}
+                >
+                                     {section4Animated && section4Lines[2] > 0 ? 'Behind the scenes, it interprets, adapts, and speaks — not just from data, but from a deep architecture trained to understand nuance, tone, and timing.'.slice(0, section4Lines[2]) : ''}
+                   {section4Animated && section4ActiveLine === 2 && section4Lines[2] > 0 && section4Lines[2] < 'Behind the scenes, it interprets, adapts, and speaks — not just from data, but from a deep architecture trained to understand nuance, tone, and timing.'.length ? <span className="cursor">|</span> : ''}
+                </p>
+                              <p 
+                  className="typewriter-text" 
+                  style={{
+                    marginBottom: 0,
+                    opacity: section4Animated ? 1 : 0,
+                    transition: 'opacity 0.8s ease-out'
+                  }}
+                >
+                                     {section4Animated && section4Lines[3] > 0 ? 'All of this is built to feel invisible — just natural, intuitive support that\'s with you when you need it.'.slice(0, section4Lines[3]) : ''}
+                   {section4Animated && section4ActiveLine === 3 && section4Lines[3] > 0 && section4Lines[3] < 'All of this is built to feel invisible — just natural, intuitive support that\'s with you when you need it.'.length ? <span className="cursor">|</span> : ''}
                </p>
             </div>
                      </section>
@@ -584,14 +765,14 @@ function App() {
                   className="typewriter-text" 
                   style={{
                     marginBottom: '1.2em',
-                    opacity: section5Animated ? Math.min(1, (section5Progress - 0) / 25) : 0,
+                    opacity: section5Animated ? 1 : 0,
                     transition: 'opacity 0.8s ease-out'
                   }}
                 >
-                                     {section5Animated && section5Progress > 0 ? (
+                                     {section5Animated && section5Lines[0] > 0 ? (
                      <>
                        <b>Designed for This Generation — and the Next</b>
-                       {Math.floor((section5Progress - 0) / 25 * 50) > 50 ? <span className="cursor">|</span> : ''}
+                                               {section5ActiveLine === 0 && section5Lines[0] < 'Designed for This Generation — and the Next'.length ? <span className="cursor">|</span> : ''}
                      </>
                    ) : ''}
                 </p>
@@ -599,23 +780,23 @@ function App() {
                   className="typewriter-text" 
                   style={{
                     marginBottom: '1.2em',
-                    opacity: section5Animated ? Math.min(1, (section5Progress - 25) / 25) : 0,
+                    opacity: section5Animated ? 1 : 0,
                     transition: 'opacity 0.8s ease-out'
                   }}
                 >
-                  {section5Animated && section5Progress > 25 ? 'We believe emotional well-being shouldn\'t be reactive. HealMind_AI is a proactive system — not in place of human connection, but in harmony with it. It meets people where they are: through conversation, on their terms, in their time.'.slice(0, Math.floor((section5Progress - 25) / 75 * 160)) : ''}
-                  {section5Animated && section5Progress > 25 ? <span className="cursor">|</span> : ''}
+                                     {section5Animated && section5Lines[1] > 0 ? 'We believe emotional well-being shouldn\'t be reactive. HealMind_AI is a proactive system — not in place of human connection, but in harmony with it. It meets people where they are: through conversation, on their terms, in their time.'.slice(0, section5Lines[1]) : ''}
+                   {section5Animated && section5ActiveLine === 1 && section5Lines[1] > 0 && section5Lines[1] < 'We believe emotional well-being shouldn\'t be reactive. HealMind_AI is a proactive system — not in place of human connection, but in harmony with it. It meets people where they are: through conversation, on their terms, in their time.'.length ? <span className="cursor">|</span> : ''}
                 </p>
                                <p 
                   className="typewriter-text" 
                   style={{
                     marginBottom: 0,
-                    opacity: section5Animated ? Math.min(1, (section5Progress - 50) / 25) : 0,
+                    opacity: section5Animated ? 1 : 0,
                     transition: 'opacity 0.8s ease-out'
                   }}
                 >
-                  {section5Animated && section5Progress > 50 ? 'Whether you\'re a student, entrepreneur, parent, artist, or simply navigating this fast-moving world — HealMind_AI is here to walk with you, not ahead or behind.'.slice(0, Math.floor((section5Progress - 50) / 50 * 130)) : ''}
-                  {section5Animated && section5Progress > 50 ? <span className="cursor">|</span> : ''}
+                                     {section5Animated && section5Lines[2] > 0 ? 'Whether you\'re a student, entrepreneur, parent, artist, or simply navigating this fast-moving world — HealMind_AI is here to walk with you, not ahead or behind.'.slice(0, section5Lines[2]) : ''}
+                   {section5Animated && section5ActiveLine === 2 && section5Lines[2] > 0 && section5Lines[2] < 'Whether you\'re a student, entrepreneur, parent, artist, or simply navigating this fast-moving world — HealMind_AI is here to walk with you, not ahead or behind.'.length ? <span className="cursor">|</span> : ''}
                 </p>
              </div>
                        </section>
@@ -625,14 +806,14 @@ function App() {
                    className="typewriter-text" 
                    style={{
                      marginBottom: '1.2em',
-                     opacity: section6Animated ? Math.min(1, (section6Progress - 0) / 25) : 0,
+                     opacity: section6Animated ? 1 : 0,
                      transition: 'opacity 0.8s ease-out'
                    }}
                  >
-                                       {section6Animated && section6Progress > 0 ? (
+                                       {section6Animated && section6Lines[0] > 0 ? (
                       <>
                         <b>Built for the Future. Grounded in Responsibility.</b>
-                        {Math.floor((section6Progress - 0) / 25 * 50) > 50 ? <span className="cursor">|</span> : ''}
+                                                 {section6ActiveLine === 0 && section6Lines[0] < 'Built for the Future. Grounded in Responsibility.'.length ? <span className="cursor">|</span> : ''}
                       </>
                     ) : ''}
                  </p>
@@ -640,56 +821,56 @@ function App() {
                    className="typewriter-text" 
                    style={{
                      marginBottom: '1.2em',
-                     opacity: section6Animated ? Math.min(1, (section6Progress - 25) / 25) : 0,
+                     opacity: section6Animated ? 1 : 0,
                      transition: 'opacity 0.8s ease-out'
                    }}
                  >
-                   {section6Animated && section6Progress > 25 ? 'HealMind_AI is developed with deep attention to ethical boundaries, data privacy, and long-term reliability. Every feature is designed with:'.slice(0, Math.floor((section6Progress - 25) / 75 * 120)) : ''}
-                   {section6Animated && section6Progress > 25 ? <span className="cursor">|</span> : ''}
+                                       {section6Animated && section6Lines[1] > 0 ? 'HealMind_AI is developed with deep attention to ethical boundaries, data privacy, and long-term reliability. Every feature is designed with:'.slice(0, section6Lines[1]) : ''}
+                    {section6Animated && section6ActiveLine === 1 && section6Lines[1] > 0 && section6Lines[1] < 'HealMind_AI is developed with deep attention to ethical boundaries, data privacy, and long-term reliability. Every feature is designed with:'.length ? <span className="cursor">|</span> : ''}
                  </p>
                                  <p 
                    className="typewriter-text" 
                    style={{
                      marginBottom: '1.2em',
-                     opacity: section6Animated ? Math.min(1, (section6Progress - 50) / 25) : 0,
+                     opacity: section6Animated ? 1 : 0,
                      transition: 'opacity 0.8s ease-out'
                    }}
                  >
-                   {section6Animated && section6Progress > 50 ? '• Security as the foundation, not an afterthought'.slice(0, Math.floor((section6Progress - 50) / 50 * 45)) : ''}
-                   {section6Animated && section6Progress > 50 ? <span className="cursor">|</span> : ''}
+                                       {section6Animated && section6Lines[2] > 0 ? '• Security as the foundation, not an afterthought.'.slice(0, section6Lines[2]) : ''}
+                    {section6Animated && section6ActiveLine === 2 && section6Lines[2] > 0 && section6Lines[2] < '• Security as the foundation, not an afterthought.'.length ? <span className="cursor">|</span> : ''}
                  </p>
                                  <p 
                    className="typewriter-text" 
                    style={{
                      marginBottom: '1.2em',
-                     opacity: section6Animated ? Math.min(1, (section6Progress - 75) / 25) : 0,
+                     opacity: section6Animated ? 1 : 0,
                      transition: 'opacity 0.8s ease-out'
                    }}
                  >
-                   {section6Animated && section6Progress > 75 ? '• Compliance with healthcare best practices, from privacy to access'.slice(0, Math.floor((section6Progress - 75) / 25 * 65)) : ''}
-                   {section6Animated && section6Progress > 75 ? <span className="cursor">|</span> : ''}
+                                       {section6Animated && section6Lines[3] > 0 ? '• Compliance with healthcare best practices, from privacy to access.'.slice(0, section6Lines[3]) : ''}
+                    {section6Animated && section6ActiveLine === 3 && section6Lines[3] > 0 && section6Lines[3] < '• Compliance with healthcare best practices, from privacy to access.'.length ? <span className="cursor">|</span> : ''}
                  </p>
                                  <p 
                    className="typewriter-text" 
                    style={{
                      marginBottom: '1.2em',
-                     opacity: section6Animated ? Math.min(1, (section6Progress - 100) / 25) : 0,
+                     opacity: section6Animated ? 1 : 0,
                      transition: 'opacity 0.8s ease-out'
                    }}
                  >
-                   {section6Animated && section6Progress > 100 ? '• Scalability to grow with users, not grow away from them'.slice(0, Math.floor((section6Progress - 100) / 25 * 55)) : ''}
-                   {section6Animated && section6Progress > 100 ? <span className="cursor">|</span> : ''}
+                                       {section6Animated && section6Lines[4] > 0 ? '• Scalability to grow with users, not grow away from them.'.slice(0, section6Lines[4]) : ''}
+                    {section6Animated && section6ActiveLine === 4 && section6Lines[4] > 0 && section6Lines[4] < '• Scalability to grow with users, not grow away from them.'.length ? <span className="cursor">|</span> : ''}
                  </p>
                                  <p 
                    className="typewriter-text" 
                    style={{
                      marginBottom: 0,
-                     opacity: section6Animated ? Math.min(1, (section6Progress - 125) / 25) : 0,
+                     opacity: section6Animated ? 1 : 0,
                      transition: 'opacity 0.8s ease-out'
                    }}
                  >
-                   {section6Animated && section6Progress > 125 ? 'We\'re not chasing hype. We\'re building trust — line by line, session by session.'.slice(0, Math.floor((section6Progress - 125) / 25 * 80)) : ''}
-                   {section6Animated && section6Progress > 125 ? <span className="cursor">|</span> : ''}
+                                       {section6Animated && section6Lines[5] > 0 ? 'We\'re not chasing hype. We\'re building trust — line by line, session by session.'.slice(0, section6Lines[5]) : ''}
+                    {section6Animated && section6ActiveLine === 5 && section6Lines[5] > 0 && section6Lines[5] < 'We\'re not chasing hype. We\'re building trust — line by line, session by session.'.length ? <span className="cursor">|</span> : ''}
                  </p>
               </div>
                          </section>
@@ -699,14 +880,14 @@ function App() {
                       className="typewriter-text" 
                       style={{
                         marginBottom: '1.2em',
-                        opacity: section7Animated ? Math.min(1, (section7Progress - 0) / 25) : 0,
+                        opacity: section7Animated ? 1 : 0,
                         transition: 'opacity 0.8s ease-out'
                       }}
                     >
-                                           {section7Animated && section7Progress > 0 ? (
+                                           {section7Animated && section7Lines[0] > 0 ? (
                          <>
                            <b>Join the Waitlist</b>
-                           {Math.floor((section7Progress - 0) / 25 * 15) > 15 ? <span className="cursor">|</span> : ''}
+                                                       {section7ActiveLine === 0 && section7Lines[0] < 'Join the Waitlist'.length ? <span className="cursor">|</span> : ''}
                          </>
                        ) : ''}
                     </p>
@@ -714,23 +895,23 @@ function App() {
                       className="typewriter-text" 
                       style={{
                         marginBottom: '1.2em',
-                        opacity: section7Animated ? Math.min(1, (section7Progress - 25) / 25) : 0,
+                        opacity: section7Animated ? 1 : 0,
                         transition: 'opacity 0.8s ease-out'
                       }}
                     >
-                      {section7Animated && section7Progress > 25 ? 'Be among the first to experience the future of voice-based emotional intelligence.'.slice(0, Math.floor((section7Progress - 25) / 75 * 85)) : ''}
-                      {section7Animated && section7Progress > 25 ? <span className="cursor">|</span> : ''}
+                                             {section7Animated && section7Lines[1] > 0 ? 'Be among the first to experience the future of voice-based emotional intelligence.'.slice(0, section7Lines[1]) : ''}
+                       {section7Animated && section7ActiveLine === 1 && section7Lines[1] > 0 && section7Lines[1] < 'Be among the first to experience the future of voice-based emotional intelligence.'.length ? <span className="cursor">|</span> : ''}
                     </p>
                                      <p 
                       className="typewriter-text" 
                       style={{
                         marginBottom: '2.5em',
-                        opacity: section7Animated ? Math.min(1, (section7Progress - 50) / 25) : 0,
+                        opacity: section7Animated ? 1 : 0,
                         transition: 'opacity 0.8s ease-out'
                       }}
                     >
-                      {section7Animated && section7Progress > 50 ? 'This is not an app launch — this is a movement toward deeper, more present digital care.'.slice(0, Math.floor((section7Progress - 50) / 50 * 95)) : ''}
-                      {section7Animated && section7Progress > 50 ? <span className="cursor">|</span> : ''}
+                                             {section7Animated && section7Lines[2] > 0 ? 'This is not an app launch — this is a movement toward deeper, more present digital care.'.slice(0, section7Lines[2]) : ''}
+                       {section7Animated && section7ActiveLine === 2 && section7Lines[2] > 0 && section7Lines[2] < 'This is not an app launch — this is a movement toward deeper, more present digital care.'.length ? <span className="cursor">|</span> : ''}
                     </p>
                  </div>
                  <div 
@@ -739,7 +920,7 @@ function App() {
                      bottom: '15vh',
                      left: '50%',
                      transform: 'translateX(-50%)',
-                     opacity: section7Animated ? Math.min(1, (section7Progress - 75) / 25) : 0,
+                     opacity: section7Animated && section7Lines[2] > 0 ? 1 : 0,
                      transition: 'opacity 0.8s ease-out'
                    }}
                  >
