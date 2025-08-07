@@ -151,7 +151,8 @@ function ParticleBackground() {
 }
 
 function App() {
-  const [scrollY, setScrollY] = useState(0);
+  const [currentSection, setCurrentSection] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [textAnimated, setTextAnimated] = useState(false);
   const [typingProgress, setTypingProgress] = useState(0);
   const [contextAnimated, setContextAnimated] = useState(false);
@@ -189,12 +190,30 @@ function App() {
     }
   }, []);
   useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      
+      if (isTransitioning) return;
+      
+      setIsTransitioning(true);
+      
+      if (e.deltaY > 0) {
+        // Scroll down - go to next section
+        setCurrentSection(prev => Math.min(prev + 1, 7));
+      } else {
+        // Scroll up - go to previous section
+        setCurrentSection(prev => Math.max(prev - 1, 0));
+      }
+      
+      // Reset transition after animation
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 1000);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, [isTransitioning]);
   useEffect(() => {
     // Start typing animation
     const timer = setTimeout(() => {
@@ -211,379 +230,292 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
   
-  // Context block animation trigger based on scroll
+  // Context block animation trigger based on currentSection
   useEffect(() => {
-    const contextBlock = document.querySelector('.context-block');
-    if (contextBlock) {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !contextAnimated) {
-            setContextAnimated(true);
-            
-            // Start line-by-line typing
-            const lineTexts = [
-              'The world is overwhelmed.',
-              'Burnout, overstimulation, and emotional fatigue have become part of everyday life. But support systems aren\'t scaling fast enough — especially in moments of silence, in the midnight thoughts, or when someone needs to be heard right now.',
-              'HealMind_AI was born from this gap.',
-              'It\'s not a replacement. It\'s not a shortcut.',
-              'It\'s a new dimension of emotional support — a highly intuitive, deeply aware voice-based AI that listens, learns, and responds with context, care, and calm.'
-            ];
-            
-            let currentLine = 0;
-            let currentChar = 0;
-            
-                         const typeNextLine = () => {
-               if (currentLine >= lineTexts.length) return;
-               
-               setContextActiveLine(currentLine);
-               
-               const interval = setInterval(() => {
-                 currentChar++;
-                 setContextLines(prev => {
-                   const newLines = [...prev];
-                   newLines[currentLine] = currentChar;
-                   return newLines;
-                 });
-                 
-                 if (currentChar >= lineTexts[currentLine].length) {
-                   clearInterval(interval);
-                   currentLine++;
-                   currentChar = 0;
-                   setTimeout(typeNextLine, 200); // Pause between lines
-                 }
-               }, 15);
-             };
-            
-            typeNextLine();
-          }
-        });
-      }, { threshold: 0.3 });
+    if (currentSection === 1 && !contextAnimated) {
+      setContextAnimated(true);
       
-      observer.observe(contextBlock);
-      return () => observer.disconnect();
-    }
-  }, [contextAnimated]);
-  
-  // Section 3 animation trigger based on scroll
-  useEffect(() => {
-    const section3Block = document.querySelector('.section3-block');
-    if (section3Block) {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !section3Animated) {
-            setSection3Animated(true);
-            
-            // Start line-by-line typing
-            const lineTexts = [
-              'Always Available. Always Respectful. Always Yours.',
-              'HealMind_AI doesn\'t just respond — it adapts to your emotional tone, your silence, and your pace. With unparalleled sensitivity and clarity, it becomes a companion for your mind — built to assist without intruding, support without diagnosing, and understand without labeling.',
-              '• Works in real time, through conversation.',
-              '• Prioritizes your privacy and emotional safety.',
-              '• Designed to scale personal reflection and daily balance.'
-            ];
-            
-            let currentLine = 0;
-            let currentChar = 0;
-            
-                         const typeNextLine = () => {
-               if (currentLine >= lineTexts.length) return;
-               
-               setSection3ActiveLine(currentLine);
-               
-               const interval = setInterval(() => {
-                 currentChar++;
-                 setSection3Lines(prev => {
-                   const newLines = [...prev];
-                   newLines[currentLine] = currentChar;
-                   return newLines;
-                 });
-                 
-                 if (currentChar >= lineTexts[currentLine].length) {
-                   clearInterval(interval);
-                   currentLine++;
-                   currentChar = 0;
-                   setTimeout(typeNextLine, 200); // Pause between lines
-                 }
-               }, 15);
-             };
-            
-            typeNextLine();
-          }
-        });
-      }, { threshold: 0.3 });
+      // Start line-by-line typing
+      const lineTexts = [
+        'The world is overwhelmed.',
+        'Burnout, overstimulation, and emotional fatigue have become part of everyday life. But support systems aren\'t scaling fast enough — especially in moments of silence, in the midnight thoughts, or when someone needs to be heard right now.',
+        'HealMind_AI was born from this gap.',
+        'It\'s not a replacement. It\'s not a shortcut.',
+        'It\'s a new dimension of emotional support — a highly intuitive, deeply aware voice-based AI that listens, learns, and responds with context, care, and calm.'
+      ];
       
-      observer.observe(section3Block);
-      return () => observer.disconnect();
-    }
-  }, [section3Animated]);
-  
-  // Section 4 animation trigger based on scroll
-  useEffect(() => {
-    const section4Block = document.querySelector('.section4-block');
-    if (section4Block) {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !section4Animated) {
-            setSection4Animated(true);
-            
-            // Start line-by-line typing
-            const lineTexts = [
-              'A New Standard for Emotional Intelligence',
-              'HealMind_AI is not a chatbot. It\'s not an app that parrots back scripted affirmations. It\'s a thoughtfully engineered system designed to support how people actually feel, especially when they can\'t always put it into words.',
-              'Behind the scenes, it interprets, adapts, and speaks — not just from data, but from a deep architecture trained to understand nuance, tone, and timing.',
-              'All of this is built to feel invisible — just natural, intuitive support that\'s with you when you need it.'
-            ];
-            
-            let currentLine = 0;
-            let currentChar = 0;
-            
-                         const typeNextLine = () => {
-               if (currentLine >= lineTexts.length) return;
-               
-               setSection4ActiveLine(currentLine);
-               
-               const interval = setInterval(() => {
-                 currentChar++;
-                 setSection4Lines(prev => {
-                   const newLines = [...prev];
-                   newLines[currentLine] = currentChar;
-                   return newLines;
-                 });
-                 
-                 if (currentChar >= lineTexts[currentLine].length) {
-                   clearInterval(interval);
-                   currentLine++;
-                   currentChar = 0;
-                   setTimeout(typeNextLine, 200); // Pause between lines
-                 }
-               }, 15);
-             };
-            
-            typeNextLine();
-          }
-        });
-      }, { threshold: 0.3 });
+      let currentLine = 0;
+      let currentChar = 0;
       
-      observer.observe(section4Block);
-      return () => observer.disconnect();
-    }
-  }, [section4Animated]);
-  
-  // Section 5 animation trigger based on scroll
-  useEffect(() => {
-    const section5Block = document.querySelector('.section5-block');
-    if (section5Block) {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !section5Animated) {
-            setSection5Animated(true);
-            
-            // Start line-by-line typing
-            const lineTexts = [
-              'Designed for This Generation — and the Next',
-              'We believe emotional well-being shouldn\'t be reactive. HealMind_AI is a proactive system — not in place of human connection, but in harmony with it. It meets people where they are: through conversation, on their terms, in their time.',
-              'Whether you\'re a student, entrepreneur, parent, artist, or simply navigating this fast-moving world — HealMind_AI is here to walk with you, not ahead or behind.'
-            ];
-            
-            let currentLine = 0;
-            let currentChar = 0;
-            
-                         const typeNextLine = () => {
-               if (currentLine >= lineTexts.length) return;
-               
-               setSection5ActiveLine(currentLine);
-               
-               const interval = setInterval(() => {
-                 currentChar++;
-                 setSection5Lines(prev => {
-                   const newLines = [...prev];
-                   newLines[currentLine] = currentChar;
-                   return newLines;
-                 });
-                 
-                 if (currentChar >= lineTexts[currentLine].length) {
-                   clearInterval(interval);
-                   currentLine++;
-                   currentChar = 0;
-                   setTimeout(typeNextLine, 200); // Pause between lines
-                 }
-               }, 15);
-             };
-            
-            typeNextLine();
-          }
-        });
-      }, { threshold: 0.3 });
-      
-      observer.observe(section5Block);
-      return () => observer.disconnect();
-    }
-  }, [section5Animated]);
-  
-  // Section 6 animation trigger based on scroll
-  useEffect(() => {
-    const section6Block = document.querySelector('.section6-block');
-    if (section6Block) {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !section6Animated) {
-            setSection6Animated(true);
-            
-            // Start line-by-line typing
-            const lineTexts = [
-              'Built for the Future. Grounded in Responsibility.',
-              'HealMind_AI is developed with deep attention to ethical boundaries, data privacy, and long-term reliability. Every feature is designed with:',
-              '• Security as the foundation, not an afterthought.',
-              '• Compliance with healthcare best practices, from privacy to access.',
-              '• Scalability to grow with users, not grow away from them.',
-              'We\'re not chasing hype. We\'re building trust — line by line, session by session.'
-            ];
-            
-            let currentLine = 0;
-            let currentChar = 0;
-            
-                         const typeNextLine = () => {
-               if (currentLine >= lineTexts.length) return;
-               
-               setSection6ActiveLine(currentLine);
-               
-               const interval = setInterval(() => {
-                 currentChar++;
-                 setSection6Lines(prev => {
-                   const newLines = [...prev];
-                   newLines[currentLine] = currentChar;
-                   return newLines;
-                 });
-                 
-                 if (currentChar >= lineTexts[currentLine].length) {
-                   clearInterval(interval);
-                   currentLine++;
-                   currentChar = 0;
-                   setTimeout(typeNextLine, 200); // Pause between lines
-                 }
-               }, 15);
-            };
-            
-            typeNextLine();
-          }
-        });
-      }, { threshold: 0.3 });
-      
-      observer.observe(section6Block);
-      return () => observer.disconnect();
-    }
-  }, [section6Animated]);
-  
-  // Section 7 animation trigger based on scroll
-  useEffect(() => {
-    const section7Block = document.querySelector('.section7-block');
-    if (section7Block) {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !section7Animated) {
-            setSection7Animated(true);
-            
-            // Start line-by-line typing
-            const lineTexts = [
-              'Join the Waitlist',
-              'Be among the first to experience the future of voice-based emotional intelligence.',
-              'This is not an app launch — this is a movement toward deeper, more present digital care.'
-            ];
-            
-            let currentLine = 0;
-            let currentChar = 0;
-            
-                         const typeNextLine = () => {
-               if (currentLine >= lineTexts.length) return;
-               
-               setSection7ActiveLine(currentLine);
-               
-               const interval = setInterval(() => {
-                 currentChar++;
-                 setSection7Lines(prev => {
-                   const newLines = [...prev];
-                   newLines[currentLine] = currentChar;
-                   return newLines;
-                 });
-                 
-                 if (currentChar >= lineTexts[currentLine].length) {
-                   clearInterval(interval);
-                   currentLine++;
-                   currentChar = 0;
-                   setTimeout(typeNextLine, 200); // Pause between lines
-                 }
-               }, 15);
-            };
-            
-            typeNextLine();
-          }
-        });
-      }, { threshold: 0.3 });
-      
-      observer.observe(section7Block);
-      return () => observer.disconnect();
-    }
-  }, [section7Animated]);
-  
-  // Calculate fade-out opacity for intro text
-  const introHeight = window.innerHeight;
-  const fadeStart = introHeight * 0.3;
-  const fadeEnd = introHeight * 0.5;
-  let fade = 1;
-  if (scrollY > fadeStart) {
-    fade = 1 - (scrollY - fadeStart) / (fadeEnd - fadeStart);
-    fade = Math.max(0, Math.min(1, fade));
-  }
-
-  // Calculate fade-out opacity for each section
-  const sectionHeight = window.innerHeight;
-  const sectionFadeStart = sectionHeight * 0.3;
-  const sectionFadeEnd = sectionHeight * 0.5;
-  
-  let contextFade = 1;
-  let section3Fade = 1;
-  let section4Fade = 1;
-  let section5Fade = 1;
-  let section6Fade = 1;
-  let section7Fade = 1;
-  
-  // Calculate fade for each section based on scroll position
-  if (scrollY > sectionHeight + sectionFadeStart) {
-    contextFade = 1 - (scrollY - (sectionHeight + sectionFadeStart)) / (sectionFadeEnd - sectionFadeStart);
-    contextFade = Math.max(0, Math.min(1, contextFade));
-  }
-  
-  if (scrollY > sectionHeight * 2 + sectionFadeStart) {
-    section3Fade = 1 - (scrollY - (sectionHeight * 2 + sectionFadeStart)) / (sectionFadeEnd - sectionFadeStart);
-    section3Fade = Math.max(0, Math.min(1, section3Fade));
-  }
-  
-  if (scrollY > sectionHeight * 3 + sectionFadeStart) {
-    section4Fade = 1 - (scrollY - (sectionHeight * 3 + sectionFadeStart)) / (sectionFadeEnd - sectionFadeStart);
-    section4Fade = Math.max(0, Math.min(1, section4Fade));
-  }
-  
-  if (scrollY > sectionHeight * 4 + sectionFadeStart) {
-    section5Fade = 1 - (scrollY - (sectionHeight * 4 + sectionFadeStart)) / (sectionFadeEnd - sectionFadeStart);
-    section5Fade = Math.max(0, Math.min(1, section5Fade));
-  }
-  
-  if (scrollY > sectionHeight * 5 + sectionFadeStart) {
-    section6Fade = 1 - (scrollY - (sectionHeight * 5 + sectionFadeStart)) / (sectionFadeEnd - sectionFadeStart);
-    section6Fade = Math.max(0, Math.min(1, section6Fade));
-  }
-  
-  if (scrollY > sectionHeight * 6 + sectionFadeStart) {
-    section7Fade = 1 - (scrollY - (sectionHeight * 6 + sectionFadeStart)) / (sectionFadeEnd - sectionFadeStart);
-    section7Fade = Math.max(0, Math.min(1, section7Fade));
-  }
+             const typeNextLine = () => {
+         if (currentLine >= lineTexts.length) return;
+         
+         setContextActiveLine(currentLine);
+         
+         const interval = setInterval(() => {
+           currentChar++;
+           setContextLines(prev => {
+             const newLines = [...prev];
+             newLines[currentLine] = currentChar;
+             return newLines;
+           });
+           
+           if (currentChar >= lineTexts[currentLine].length) {
+             clearInterval(interval);
+             currentLine++;
+             currentChar = 0;
+             setTimeout(typeNextLine, 200); // Pause between lines
+           }
+         }, 15);
+       };
+       
+       typeNextLine();
+     }
+   }, [currentSection, contextAnimated]);
+   
+   // Section 3 animation trigger based on currentSection
+   useEffect(() => {
+     if (currentSection === 2 && !section3Animated) {
+       setSection3Animated(true);
+       
+       // Start line-by-line typing
+       const lineTexts = [
+         'Always Available. Always Respectful. Always Yours.',
+         'HealMind_AI doesn\'t just respond — it adapts to your emotional tone, your silence, and your pace. With unparalleled sensitivity and clarity, it becomes a companion for your mind — built to assist without intruding, support without diagnosing, and understand without labeling.',
+         '• Works in real time, through conversation.',
+         '• Prioritizes your privacy and emotional safety.',
+         '• Designed to scale personal reflection and daily balance.'
+       ];
+       
+       let currentLine = 0;
+       let currentChar = 0;
+       
+       const typeNextLine = () => {
+         if (currentLine >= lineTexts.length) return;
+         
+         setSection3ActiveLine(currentLine);
+         
+         const interval = setInterval(() => {
+           currentChar++;
+           setSection3Lines(prev => {
+             const newLines = [...prev];
+             newLines[currentLine] = currentChar;
+             return newLines;
+           });
+           
+           if (currentChar >= lineTexts[currentLine].length) {
+             clearInterval(interval);
+             currentLine++;
+             currentChar = 0;
+             setTimeout(typeNextLine, 200); // Pause between lines
+           }
+         }, 15);
+       };
+       
+       typeNextLine();
+     }
+   }, [currentSection, section3Animated]);
+   
+   // Section 4 animation trigger based on currentSection
+   useEffect(() => {
+     if (currentSection === 3 && !section4Animated) {
+       setSection4Animated(true);
+       
+       // Start line-by-line typing
+       const lineTexts = [
+         'A New Standard for Emotional Intelligence',
+         'HealMind_AI is not a chatbot. It\'s not an app that parrots back scripted affirmations. It\'s a thoughtfully engineered system designed to support how people actually feel, especially when they can\'t always put it into words.',
+         'Behind the scenes, it interprets, adapts, and speaks — not just from data, but from a deep architecture trained to understand nuance, tone, and timing.',
+         'All of this is built to feel invisible — just natural, intuitive support that\'s with you when you need it.'
+       ];
+       
+       let currentLine = 0;
+       let currentChar = 0;
+       
+       const typeNextLine = () => {
+         if (currentLine >= lineTexts.length) return;
+         
+         setSection4ActiveLine(currentLine);
+         
+         const interval = setInterval(() => {
+           currentChar++;
+           setSection4Lines(prev => {
+             const newLines = [...prev];
+             newLines[currentLine] = currentChar;
+             return newLines;
+           });
+           
+           if (currentChar >= lineTexts[currentLine].length) {
+             clearInterval(interval);
+             currentLine++;
+             currentChar = 0;
+             setTimeout(typeNextLine, 200); // Pause between lines
+           }
+         }, 15);
+       };
+       
+       typeNextLine();
+     }
+   }, [currentSection, section4Animated]);
+   
+   // Section 5 animation trigger based on currentSection
+   useEffect(() => {
+     if (currentSection === 4 && !section5Animated) {
+       setSection5Animated(true);
+       
+       // Start line-by-line typing
+       const lineTexts = [
+         'Designed for This Generation — and the Next',
+         'We believe emotional well-being shouldn\'t be reactive. HealMind_AI is a proactive system — not in place of human connection, but in harmony with it. It meets people where they are: through conversation, on their terms, in their time.',
+         'Whether you\'re a student, entrepreneur, parent, artist, or simply navigating this fast-moving world — HealMind_AI is here to walk with you, not ahead or behind.'
+       ];
+       
+       let currentLine = 0;
+       let currentChar = 0;
+       
+       const typeNextLine = () => {
+         if (currentLine >= lineTexts.length) return;
+         
+         setSection5ActiveLine(currentLine);
+         
+         const interval = setInterval(() => {
+           currentChar++;
+           setSection5Lines(prev => {
+             const newLines = [...prev];
+             newLines[currentLine] = currentChar;
+             return newLines;
+           });
+           
+           if (currentChar >= lineTexts[currentLine].length) {
+             clearInterval(interval);
+             currentLine++;
+             currentChar = 0;
+             setTimeout(typeNextLine, 200); // Pause between lines
+           }
+         }, 15);
+       };
+       
+       typeNextLine();
+     }
+   }, [currentSection, section5Animated]);
+   
+   // Section 6 animation trigger based on currentSection
+   useEffect(() => {
+     if (currentSection === 5 && !section6Animated) {
+       setSection6Animated(true);
+       
+       // Start line-by-line typing
+       const lineTexts = [
+         'Built for the Future. Grounded in Responsibility.',
+         'HealMind_AI is developed with deep attention to ethical boundaries, data privacy, and long-term reliability. Every feature is designed with:',
+         '• Security as the foundation, not an afterthought.',
+         '• Compliance with healthcare best practices, from privacy to access.',
+         '• Scalability to grow with users, not grow away from them.',
+         'We\'re not chasing hype. We\'re building trust — line by line, session by session.'
+       ];
+       
+       let currentLine = 0;
+       let currentChar = 0;
+       
+       const typeNextLine = () => {
+         if (currentLine >= lineTexts.length) return;
+         
+         setSection6ActiveLine(currentLine);
+         
+         const interval = setInterval(() => {
+           currentChar++;
+           setSection6Lines(prev => {
+             const newLines = [...prev];
+             newLines[currentLine] = currentChar;
+             return newLines;
+           });
+           
+           if (currentChar >= lineTexts[currentLine].length) {
+             clearInterval(interval);
+             currentLine++;
+             currentChar = 0;
+             setTimeout(typeNextLine, 200); // Pause between lines
+           }
+         }, 15);
+       };
+       
+       typeNextLine();
+     }
+   }, [currentSection, section6Animated]);
+   
+   // Section 7 animation trigger based on currentSection
+   useEffect(() => {
+     if (currentSection === 6 && !section7Animated) {
+       setSection7Animated(true);
+       
+       // Start line-by-line typing
+       const lineTexts = [
+         'Join the Waitlist',
+         'Be among the first to experience the future of voice-based emotional intelligence.',
+         'This is not an app launch — this is a movement toward deeper, more present digital care.'
+       ];
+       
+       let currentLine = 0;
+       let currentChar = 0;
+       
+       const typeNextLine = () => {
+         if (currentLine >= lineTexts.length) return;
+         
+         setSection7ActiveLine(currentLine);
+         
+         const interval = setInterval(() => {
+           currentChar++;
+           setSection7Lines(prev => {
+             const newLines = [...prev];
+             newLines[currentLine] = currentChar;
+             return newLines;
+           });
+           
+           if (currentChar >= lineTexts[currentLine].length) {
+             clearInterval(interval);
+             currentLine++;
+             currentChar = 0;
+             setTimeout(typeNextLine, 200); // Pause between lines
+           }
+         }, 15);
+       };
+       
+       typeNextLine();
+     }
+   }, [currentSection, section7Animated]);
+   
+   // Simple fade values for sections
+   const fade = 1;
+   const contextFade = 1;
+   const section3Fade = 1;
+   const section4Fade = 1;
+   const section5Fade = 1;
+   const section6Fade = 1;
+   const section7Fade = 1;
 
   return (
     <>
       <CursorFollower />
       <ParticleBackground />
-      <div id="FirstComponent">
+      <div id="FirstComponent" style={{
+        transform: `translateY(-${currentSection * 100}vh)`,
+        transition: 'transform 0.8s ease-in-out'
+      }}>
          <div className="intro-block-full">
+                                               <div style={{
+                          position: 'absolute',
+                          top: '2rem',
+                          left: '6vw',
+                          fontSize: '1.5rem',
+                          fontWeight: 'bold',
+                          color: '#8B5CF6',
+                          zIndex: 3,
+                          opacity: fade,
+                          transition: 'opacity 0.2s',
+                          letterSpacing: '0.2em'
+                        }}>
+                          NEURALYN
+                        </div>
                        <h1 className="typewriter-text" style={{fontSize: '7rem', marginBottom: '0.5em', position: 'relative', zIndex: 2, opacity: fade, transition: 'opacity 0.2s'}}>
               {textAnimated ? 'HealMind_AI'.slice(0, Math.floor(typingProgress / 100 * 11)) : ''}
               <span className="cursor">|</span>
@@ -646,21 +578,21 @@ function App() {
           </section>
          <section className="section3-block">
            <div className="context-content">
-                           <p 
-                className="typewriter-text" 
-                style={{
-                  marginBottom: '1.2em',
-                  opacity: section3Animated ? 1 : 0,
-                  transition: 'opacity 0.8s ease-out'
-                }}
-              >
-                                 {section3Animated && section3Lines[0] > 0 ? (
-                   <>
-                     <b>Always Available. Always Respectful. Always Yours.</b>
-                     {section3ActiveLine === 0 && section3Lines[0] < 'Always Available. Always Respectful. Always Yours.'.length ? <span className="cursor">|</span> : ''}
-                   </>
-                 ) : ''}
-              </p>
+                                                       <p 
+                 className="typewriter-text" 
+                 style={{
+                   marginBottom: '0.5em',
+                   opacity: section3Animated ? 1 : 0,
+                   transition: 'opacity 0.8s ease-out'
+                 }}
+               >
+                                  {section3Animated && section3Lines[0] > 0 ? (
+                    <>
+                      <b>Always Available. Always Respectful. Always Yours.</b>
+                      {section3ActiveLine === 0 && section3Lines[0] < 'Always Available. Always Respectful. Always Yours.'.length ? <span className="cursor">|</span> : ''}
+                    </>
+                  ) : ''}
+               </p>
                            <p 
                 className="typewriter-text" 
                 style={{
@@ -672,28 +604,28 @@ function App() {
                                                                    {section3Animated && section3Lines[1] > 0 ? 'HealMind_AI doesn\'t just respond — it adapts to your emotional tone, your silence, and your pace. With unparalleled sensitivity and clarity, it becomes a companion for your mind — built to assist without intruding, support without diagnosing, and understand without labeling.'.slice(0, section3Lines[1]) : ''}
                                   {section3Animated && section3ActiveLine === 1 && section3Lines[1] > 0 && section3Lines[1] < 'HealMind_AI doesn\'t just respond — it adapts to your emotional tone, your silence, and your pace. With unparalleled sensitivity and clarity, it becomes a companion for your mind — built to assist without intruding, support without diagnosing, and understand without labeling.'.length ? <span className="cursor">|</span> : ''}
                </p>
-                            <p 
-                 className="typewriter-text" 
-                 style={{
-                   marginBottom: '1.2em',
-                   opacity: section3Animated ? 1 : 0,
-                   transition: 'opacity 0.8s ease-out'
-                 }}
-               >
-                                   {section3Animated && section3Lines[2] > 0 ? '• Works in real time, through conversation.'.slice(0, section3Lines[2]) : ''}
-                  {section3Animated && section3ActiveLine === 2 && section3Lines[2] > 0 && section3Lines[2] < '• Works in real time, through conversation.'.length ? <span className="cursor">|</span> : ''}
-               </p>
-                            <p 
-                 className="typewriter-text" 
-                 style={{
-                   marginBottom: '1.2em',
-                   opacity: section3Animated ? 1 : 0,
-                   transition: 'opacity 0.8s ease-out'
-                 }}
-               >
-                                   {section3Animated && section3Lines[3] > 0 ? '• Prioritizes your privacy and emotional safety.'.slice(0, section3Lines[3]) : ''}
-                  {section3Animated && section3ActiveLine === 3 && section3Lines[3] > 0 && section3Lines[3] < '• Prioritizes your privacy and emotional safety.'.length ? <span className="cursor">|</span> : ''}
-               </p>
+                                                         <p 
+                  className="typewriter-text" 
+                  style={{
+                    marginBottom: '0.8em',
+                    opacity: section3Animated ? 1 : 0,
+                    transition: 'opacity 0.8s ease-out'
+                  }}
+                >
+                                    {section3Animated && section3Lines[2] > 0 ? '• Works in real time, through conversation.'.slice(0, section3Lines[2]) : ''}
+                   {section3Animated && section3ActiveLine === 2 && section3Lines[2] > 0 && section3Lines[2] < '• Works in real time, through conversation.'.length ? <span className="cursor">|</span> : ''}
+                </p>
+                             <p 
+                  className="typewriter-text" 
+                  style={{
+                    marginBottom: '0.8em',
+                    opacity: section3Animated ? 1 : 0,
+                    transition: 'opacity 0.8s ease-out'
+                  }}
+                >
+                                    {section3Animated && section3Lines[3] > 0 ? '• Prioritizes your privacy and emotional safety.'.slice(0, section3Lines[3]) : ''}
+                   {section3Animated && section3ActiveLine === 3 && section3Lines[3] > 0 && section3Lines[3] < '• Prioritizes your privacy and emotional safety.'.length ? <span className="cursor">|</span> : ''}
+                </p>
                             <p 
                  className="typewriter-text" 
                  style={{
