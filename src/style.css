@@ -423,6 +423,57 @@ body {
   background: #181818 !important;
 }
 
+/* Form grid base styles */
+.form-grid {
+  display: grid;
+  gap: 1.2rem;
+  max-width: 100%;
+}
+
+/* Desktop form styling - outside mobile media query */
+@media (min-width: 769px) {
+  .section8-block {
+    padding-top: 8vh !important;
+    align-items: flex-start !important;
+    overflow-y: auto !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    position: relative !important;
+  }
+  
+  .section8-block .context-content {
+    padding-top: 2rem !important;
+    padding-bottom: 8rem !important;
+    min-height: 120vh !important;
+    overflow-y: visible !important;
+  }
+  
+  /* Ensure body allows scrolling when on registration section */
+  body.section8-active {
+    overflow: auto !important;
+  }
+  
+  .form-grid { 
+    grid-template-columns: 1fr 1fr !important; 
+    gap: 2rem !important; 
+    max-width: 800px !important;
+    margin: 0 auto !important;
+  }
+  
+  .form-field input { 
+    width: 100% !important; 
+    max-width: 100% !important; 
+    min-height: 60px !important; 
+  }
+  
+  /* Center the submit button on desktop */
+  .section8-block form button[type="submit"] {
+    margin: 2rem auto !important;
+    display: block !important;
+    min-width: 300px !important;
+  }
+}
+
 .typewriter-text {
   overflow: hidden;
 }
@@ -533,11 +584,61 @@ body {
   }
 
   /* Form stack and comfortable tap targets */
-  .form-grid { grid-template-columns: 1fr !important; gap: 1.2rem !important; max-width: 100% !important; }
-  .form-field input { width: 100% !important; max-width: 100% !important; min-height: 52px !important; }
-  .magnetic-btn { width: 100%; max-width: 420px; font-size: 1.05rem; padding: 14px 22px; }
+  .form-grid { 
+    grid-template-columns: 1fr !important; 
+    gap: 1.2rem !important; 
+    max-width: 100% !important;
+    width: 100% !important;
+    justify-items: start !important;
+  }
+  .form-field { 
+    width: 100% !important; 
+    max-width: 100% !important;
+  }
+  .form-field input { 
+    width: 100% !important; 
+    max-width: 100% !important; 
+    min-height: 52px !important; 
+  }
+  .magnetic-btn { 
+    width: 100% !important; 
+    max-width: 100% !important; 
+    font-size: 1.05rem; 
+    padding: 14px 22px; 
+    align-self: flex-start !important;
+    box-sizing: border-box !important;
+  }
   .particle-canvas { opacity: 0.8; }
-}
+  
+  /* Premium form transition */
+  .section8-block {
+    transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+ }
+ 
+ /* Desktop form styling - outside mobile media query */
+ @media (min-width: 769px) {
+   .form-grid { 
+     grid-template-columns: 1fr 1fr !important; 
+     gap: 2rem !important; 
+     max-width: 800px !important;
+     margin: 0 auto !important;
+   }
+   
+   .form-field input { 
+     width: 100% !important; 
+     max-width: 100% !important; 
+     min-height: 60px !important; 
+   }
+   
+   /* Center the submit button on desktop */
+   .section8-block form button[type="submit"] {
+     margin: 2rem auto !important;
+     display: block !important;
+     min-width: 300px !important;
+   }
+ }
 
 
 

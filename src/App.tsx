@@ -232,7 +232,6 @@ function App() {
   const [section8ActiveLine, setSection8ActiveLine] = useState(0);
   
       // Form state
-    const [showForm, setShowForm] = useState(false);
     const [formData, setFormData] = useState({
       name: '',
       email: '',
@@ -284,7 +283,6 @@ function App() {
     setSection8ActiveLine(0);
     
     // Reset form state
-    setShowForm(false);
     setFormData({
       name: '',
       email: '',
@@ -869,7 +867,7 @@ This registration was submitted through the HealMind_AI waitlist form.
     paddingBottom: '0.35rem'
   }}
   onClick={() => {
-    setShowForm(true);
+    // setShowForm(true); // Removed as per edit hint
     setCurrentSection(7);
   }}
 >
@@ -1212,17 +1210,28 @@ This registration was submitted through the HealMind_AI waitlist form.
                    }}
                  >
                     <MagneticButton onJoinClick={() => {
-                      setShowForm(true);
+                      // setShowForm(true); // Removed as per edit hint
                       setCurrentSection(7);
-                      // On mobile, smoothly scroll into the registration form
-                      if (isMobile) {
-                        setTimeout(() => {
-                          const formSection = document.querySelector('.section8-block');
-                          if (formSection) {
+                      // Smooth transition to registration form
+                      setTimeout(() => {
+                        const formSection = document.querySelector('.section8-block');
+                        if (formSection) {
+                          if (isMobile) {
                             (formSection as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          } else {
+                            // Desktop: fade in the form section
+                            (formSection as HTMLElement).style.opacity = '0';
+                            (formSection as HTMLElement).style.transform = 'translateY(20px)';
+                            (formSection as HTMLElement).style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+                            setTimeout(() => {
+                              (formSection as HTMLElement).style.opacity = '1';
+                              (formSection as HTMLElement).style.transform = 'translateY(0)';
+                              // Enable scrolling for registration section
+                              document.body.classList.add('section8-active');
+                            }, 50);
                           }
-                        }, 50);
-                      }
+                        }
+                      }, 100);
                     }} />
                   </div>
                               </section>
@@ -1233,7 +1242,7 @@ This registration was submitted through the HealMind_AI waitlist form.
                   <p 
                     className="typewriter-text" 
                     style={{
-                      marginBottom: '1.2em',
+                      marginBottom: '0.8em',
                       opacity: section8Animated ? 1 : 0,
                       transition: 'opacity 0.8s ease-out'
                     }}
@@ -1248,7 +1257,7 @@ This registration was submitted through the HealMind_AI waitlist form.
                   <p 
                     className="typewriter-text" 
                     style={{
-                      marginBottom: '1.2em',
+                      marginBottom: '0.8em',
                       opacity: section8Animated ? 1 : 0,
                       transition: 'opacity 0.8s ease-out'
                     }}
@@ -1259,7 +1268,7 @@ This registration was submitted through the HealMind_AI waitlist form.
                   <p 
                     className="typewriter-text" 
                     style={{
-                      marginBottom: '2.5em',
+                      marginBottom: '1.5em',
                       opacity: section8Animated ? 1 : 0,
                       transition: 'opacity 0.8s ease-out'
                     }}
@@ -1269,19 +1278,25 @@ This registration was submitted through the HealMind_AI waitlist form.
                   </p>
                   
                   {/* Form */}
-                  {showForm && (
-                    <div 
-                      style={{
-                        opacity: showForm ? 1 : 0,
-                        transition: 'opacity 0.8s ease-out',
-                        maxWidth: '500px',
-                        margin: '0 auto',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center'
-                      }}
-                    >
-                                             <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                  <div 
+                    style={{
+                      opacity: 1,
+                      transition: 'opacity 0.8s ease-out',
+                      maxWidth: isMobile ? '90%' : '500px',
+                      margin: '0 auto',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'flex-start',
+                      width: '100%'
+                    }}
+                  >
+                                             <form onSubmit={handleFormSubmit} style={{ 
+                                               display: 'flex', 
+                                               flexDirection: 'column', 
+                                               gap: '2rem',
+                                               width: '100%',
+                                               alignItems: 'flex-start'
+                                             }}>
                         {/* 2x2 Grid Layout */}
                         <div className="form-grid">
                           {/* Name Field */}
@@ -1400,7 +1415,8 @@ This registration was submitted through the HealMind_AI waitlist form.
                             marginTop: '2rem',
                             marginBottom: '2rem',
                             opacity: isSubmitting ? 0.7 : 1,
-                            minWidth: '300px',
+                            minWidth: isMobile ? '100%' : '300px',
+                            maxWidth: isMobile ? '100%' : '300px',
                             minHeight: '70px',
                             boxShadow: '0 8px 25px rgba(139, 92, 246, 0.3)'
                           }}
@@ -1435,7 +1451,6 @@ This registration was submitted through the HealMind_AI waitlist form.
                         )}
                       </form>
                     </div>
-                  )}
          </div>
               </section>
       </div>
