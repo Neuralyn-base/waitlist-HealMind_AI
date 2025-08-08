@@ -446,6 +446,99 @@ body {
   51%, 100% { opacity: 0; }
 }
 
+@keyframes drawUnderline {
+  0% { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+
+.underline-animation {
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+/* Removed gradient text hover effect globally as requested */
+
+.priority-link:hover { color: #A78BFA; }
+.priority-underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #8B5CF6;
+  transform: scaleX(1);
+  transform-origin: left;
+}
+.priority-link:hover .priority-underline {
+  background-color: #A78BFA;
+  animation: drawUnderline 0.9s ease-in-out forwards;
+}
+
+@media (max-width: 768px) {
+  /* Enable natural page scrolling on phones */
+  html, body, #root { height: auto !important; min-height: 100vh !important; }
+  html { scroll-snap-type: y mandatory; }
+  body { overflow: auto !important; display: block !important; place-items: initial !important; }
+
+  /* Hide heavy/desktop-only elements */
+  .priority-link { display: none !important; }
+  .scroll-indicator { display: none !important; }
+  .cursor-follower { display: none !important; }
+
+  /* Stack sections vertically and reduce paddings */
+  .intro-block-full,
+  .context-block,
+  .section3-block,
+  .section4-block,
+  .section5-block,
+  .section6-block,
+  .section7-block,
+  .section8-block {
+    width: 100vw;
+    height: auto !important;
+    min-height: auto !important;
+    padding: 10vh 6vw !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    scroll-snap-align: start;
+  }
+
+  /* Waitlist & form sections stack vertically with spacing */
+  .section7-block,
+  .section8-block {
+    flex-direction: column !important;
+    gap: 1.25rem !important;
+  }
+
+  /* Ensure container wrapper doesn't pin to viewport */
+  #FirstComponent { height: auto !important; }
+
+  /* Hero spacing slightly larger */
+  .intro-block-full {
+    padding: 12vh 6vw !important;
+    height: 100dvh !important;      /* fill full viewport on mobile */
+    min-height: 100dvh !important;
+    justify-content: center !important;
+  }
+
+  /* Responsive type scale */
+  .intro-block-full h1 { font-size: clamp(3rem, 10.5vw, 4.2rem) !important; }
+  .intro-block-full p { font-size: clamp(1.2rem, 5.2vw, 1.7rem) !important; }
+
+  .context-content {
+    padding: 1.5rem 1rem !important;
+    font-size: 1.05rem !important;
+    line-height: 1.7 !important;
+    border-radius: 16px !important;
+  }
+
+  /* Form stack and comfortable tap targets */
+  .form-grid { grid-template-columns: 1fr !important; gap: 1.2rem !important; max-width: 100% !important; }
+  .form-field input { width: 100% !important; max-width: 100% !important; min-height: 52px !important; }
+  .magnetic-btn { width: 100%; max-width: 420px; font-size: 1.05rem; padding: 14px 22px; }
+  .particle-canvas { opacity: 0.8; }
+}
+
 
 
 

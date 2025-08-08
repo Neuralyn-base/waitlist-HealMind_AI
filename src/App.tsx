@@ -1,6 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import './style.css'
 
@@ -70,18 +68,20 @@ function MagneticButton({ onJoinClick }: { onJoinClick: () => void }) {
 
   return (
     <button ref={btnRef} className="magnetic-btn" onClick={handleClick}>
-      Join the Movement
+      Get Priority Access
       <span ref={rippleRef} className="ripple" />
     </button>
   );
 }
 
 function ParticleBackground() {
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const context = ctx as CanvasRenderingContext2D;
     let width = window.innerWidth;
     let height = window.innerHeight;
     canvas.width = width;
@@ -93,12 +93,14 @@ function ParticleBackground() {
       'rgba(221, 214, 243, 0.18)', // lavender
       'rgba(255, 255, 255, 0.13)'  // soft white
     ];
-    let particles = Array.from({length: 28}, () => {
+    const isSmall = window.matchMedia('(max-width: 768px)').matches;
+    const particleCount = isSmall ? 16 : 28;
+    let particles = Array.from({length: particleCount}, () => {
       const r = 12 + Math.random() * 18;
       return {
         x: Math.random() * width,
         y: Math.random() * height,
-        r,
+        r: isSmall ? r * 0.7 : r,
         baseR: r,
         dx: -0.06 + Math.random() * 0.12,
         dy: -0.06 + Math.random() * 0.12,
@@ -107,20 +109,20 @@ function ParticleBackground() {
         phase: Math.random() * Math.PI * 2
       };
     });
-    function draw(time) {
-      ctx.clearRect(0, 0, width, height);
+    function draw(time: number) {
+      context.clearRect(0, 0, width, height);
       for (let p of particles) {
         let radius = p.r;
         if (p.breathing) {
           radius = p.baseR + Math.sin(time / 1200 + p.phase) * 3;
         }
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, radius, 0, 2 * Math.PI);
-        ctx.fillStyle = p.color;
-        ctx.shadowColor = p.color;
-        ctx.shadowBlur = 16;
-        ctx.fill();
-        ctx.shadowBlur = 0;
+        context.beginPath();
+        context.arc(p.x, p.y, radius, 0, 2 * Math.PI);
+        context.fillStyle = p.color;
+        context.shadowColor = p.color;
+        context.shadowBlur = 16;
+        context.fill();
+        context.shadowBlur = 0;
       }
     }
     function update() {
@@ -131,18 +133,20 @@ function ParticleBackground() {
         if (p.y < -40 || p.y > height + 40) p.dy *= -1;
       }
     }
-    let animationId;
-    function animate(time) {
+    let animationId: number;
+    function animate(time: number) {
       draw(time || 0);
       update();
       animationId = requestAnimationFrame(animate);
     }
-    animate();
+    animate(0);
     function handleResize() {
       width = window.innerWidth;
       height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
+      const c = canvasRef.current;
+      if (!c) return;
+      c.width = width;
+      c.height = height;
     }
     window.addEventListener('resize', handleResize);
     return () => {
@@ -202,19 +206,12 @@ function App() {
   const [textAnimated, setTextAnimated] = useState(false);
   const [typingProgress, setTypingProgress] = useState(0);
   const [contextAnimated, setContextAnimated] = useState(false);
-  const [contextProgress, setContextProgress] = useState(0);
   const [section3Animated, setSection3Animated] = useState(false);
-  const [section3Progress, setSection3Progress] = useState(0);
   const [section4Animated, setSection4Animated] = useState(false);
-  const [section4Progress, setSection4Progress] = useState(0);
   const [section5Animated, setSection5Animated] = useState(false);
-  const [section5Progress, setSection5Progress] = useState(0);
   const [section6Animated, setSection6Animated] = useState(false);
-  const [section6Progress, setSection6Progress] = useState(0);
   const [section7Animated, setSection7Animated] = useState(false);
-  const [section7Progress, setSection7Progress] = useState(0);
   const [section8Animated, setSection8Animated] = useState(false);
-  const [section8Progress, setSection8Progress] = useState(0);
   
   // New state for line-by-line typing
   const [contextLines, setContextLines] = useState([0, 0, 0, 0]); // [line1, line2, line3, line4]
@@ -261,19 +258,12 @@ function App() {
     setTextAnimated(false);
     setTypingProgress(0);
     setContextAnimated(false);
-    setContextProgress(0);
     setSection3Animated(false);
-    setSection3Progress(0);
     setSection4Animated(false);
-    setSection4Progress(0);
     setSection5Animated(false);
-    setSection5Progress(0);
     setSection6Animated(false);
-    setSection6Progress(0);
     setSection7Animated(false);
-    setSection7Progress(0);
     setSection8Animated(false);
-    setSection8Progress(0);
     
     // Reset all line-by-line typing states
     setContextLines([0, 0, 0, 0, 0]);
@@ -348,20 +338,94 @@ function App() {
     }, 1000);
   }, [isTransitioning]);
 
+  const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+
+  // Typing speeds
+  const progressDelta = isMobile ? 4 : 2; // hero progress step
+  const tickMs = isMobile ? 20 : 50;       // hero tick interval
+  const charStep = isMobile ? 2 : 1;       // per-char step for paragraphs
+  const charTickMs = isMobile ? 18 : 35;   // per-char interval
+
+  // On mobile: compute currentSection from scroll position to trigger typewriter quickly
   useEffect(() => {
+    if (!isMobile) return;
+    const sections: HTMLElement[] = Array.from(document.querySelectorAll<HTMLElement>(
+      '.intro-block-full, .context-block, .section3-block, .section4-block, .section5-block, .section6-block, .section7-block, .section8-block'
+    ));
+    const handler = () => {
+      const vhMid = window.innerHeight * 0.45;
+      let active = 0;
+      sections.forEach((el, idx) => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= vhMid && rect.bottom >= vhMid) {
+          active = Math.min(idx, 7);
+        }
+      });
+      setCurrentSection(active);
+    };
+    handler();
+    window.addEventListener('scroll', handler, { passive: true });
+    return () => window.removeEventListener('scroll', handler);
+  }, [isMobile]);
+
+  // On mobile: force animations to completed so content renders fully
+  useEffect(() => {
+    if (!isMobile) return;
+    setTextAnimated(true);
+    setTypingProgress(100);
+    setContextAnimated(true);
+    setSection3Animated(true);
+    setSection4Animated(true);
+    setSection5Animated(true);
+    setSection6Animated(true);
+    setSection7Animated(true);
+    setSection8Animated(true);
+
+    // Fill line arrays with large numbers to show full text
+    setContextLines([999, 999, 999, 999, 999]);
+    setSection3Lines([999, 999, 999, 999, 999]);
+    setSection4Lines([999, 999, 999, 999]);
+    setSection5Lines([999, 999, 999]);
+    setSection6Lines([999, 999, 999, 999, 999, 999]);
+    setSection7Lines([999, 999, 999]);
+    setSection8Lines([999, 999, 999]);
+  }, [isMobile]);
+
+  // wheel handler: only for desktop
+  useEffect(() => {
+    if (isMobile) return; // disable custom wheel navigation on mobile
     window.addEventListener('wheel', handleWheel, { passive: false });
     return () => window.removeEventListener('wheel', handleWheel);
-      }, [handleWheel]);
+  }, [handleWheel, isMobile]);
 
-    // Form submission handler
-    const handleFormSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      setIsSubmitting(true);
-      setSubmitMessage('');
+  // Fade stack sections: disable absolute positioning on mobile so pages scroll
+  const mobileSectionStyle: React.CSSProperties | undefined = isMobile ? undefined : {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100vh',
+  };
+  const mobileOpacity = (index: number) => (isMobile ? 1 : (currentSection === index ? 1 : 0));
+  const mobilePointer = (index: number) => (isMobile ? 'auto' : (currentSection === index ? 'auto' : 'none'));
 
-      try {
-        // Create structured email content
-        const emailContent = `
+  // Form submission handler
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitMessage('');
+
+    try {
+      // Using Web3Forms - Free and reliable email service
+      const formData2 = new FormData();
+      formData2.append('access_key', '7097c068-d291-4139-832e-7cf5246c25ae');
+      formData2.append('subject', 'New HealMind_AI Waitlist Registration');
+      formData2.append('from_name', 'HealMind_AI Waitlist');
+      formData2.append('name', formData.name);
+      formData2.append('email', formData.email);
+      formData2.append('date_of_birth', formData.dateOfBirth);
+      formData2.append('city', formData.city);
+      formData2.append('message', `
 New HealMind_AI Waitlist Registration
 
 Registration Details:
@@ -375,33 +439,34 @@ Registration Information:
 =======================
 Registration Date: ${new Date().toLocaleString()}
 Source: HealMind_AI Website Waitlist
-IP Address: ${await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(data => data.ip).catch(() => 'Unknown')}
-
-Technical Details:
-=================
-User Agent: ${navigator.userAgent}
 Platform: ${navigator.platform}
 Language: ${navigator.language}
 Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}
 
 This registration was submitted through the HealMind_AI waitlist form.
-        `;
+      `);
 
-        // For production, you would use a proper email service
-        // Here are some options:
-        // 1. EmailJS (client-side)
-        // 2. SendGrid API
-        // 3. Your own backend server
-        
-        // For now, we'll simulate the email sending
-        console.log('Email to: main@neuralyn.health');
-        console.log('Subject: New HealMind_AI Waitlist Registration');
-        console.log('Content:', emailContent);
-        
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
+      // Send actual email using Web3Forms
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: formData2
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
         setSubmitMessage('Registration submitted successfully! We\'ll notify you soon.');
+        
+        // Log successful submission
+        console.log('=== EMAIL SENT SUCCESSFULLY ===');
+        console.log('Target Email: main@neuralyn.health');
+        console.log('Name:', formData.name);
+        console.log('Email:', formData.email);
+        console.log('Date of Birth:', formData.dateOfBirth);
+        console.log('City:', formData.city);
+        console.log('Timestamp:', new Date().toLocaleString());
+        console.log('==============================');
+        
         setFormData({
           name: '',
           email: '',
@@ -413,36 +478,47 @@ This registration was submitted through the HealMind_AI waitlist form.
         setTimeout(() => {
           setSubmitMessage('');
         }, 5000);
-        
-      } catch (error) {
-        setSubmitMessage('Error submitting registration. Please try again.');
-        console.error('Form submission error:', error);
-      } finally {
-        setIsSubmitting(false);
+      } else {
+        throw new Error('Form submission failed');
       }
-    };
+      
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setSubmitMessage('Error submitting registration. Please try again.');
+      
+      // Log data for manual processing even on error
+      console.log('=== FAILED REGISTRATION (FOR MANUAL PROCESSING) ===');
+      console.log('Target Email: main@neuralyn.health');
+      console.log('Name:', formData.name);
+      console.log('Email:', formData.email);
+      console.log('Date of Birth:', formData.dateOfBirth);
+      console.log('City:', formData.city);
+      console.log('Timestamp:', new Date().toLocaleString());
+      console.log('=================================================');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   useEffect(() => {
-    // Start typing animation
+    // Start typing animation (hero)
     const timer = setTimeout(() => {
       setTextAnimated(true);
       let progress = 0;
       const interval = setInterval(() => {
-        progress += 2;
+        progress += progressDelta;
         setTypingProgress(progress);
         if (progress >= 100) {
           clearInterval(interval);
         }
-      }, 50);
-    }, 500);
+      }, tickMs);
+    }, 300);
     return () => clearTimeout(timer);
-  }, []);
+  }, [progressDelta, tickMs]);
   
   // Context block animation trigger based on currentSection
   useEffect(() => {
     if (currentSection === 1 && !contextAnimated) {
       setContextAnimated(true);
-      
-      // Start line-by-line typing
       const lineTexts = [
         'The world is overwhelmed.',
         'Burnout, overstimulation, and emotional fatigue have become part of everyday life. But support systems aren\'t scaling fast enough — especially in moments of silence, in the midnight thoughts, or when someone needs to be heard right now.',
@@ -450,35 +526,29 @@ This registration was submitted through the HealMind_AI waitlist form.
         'It\'s not a replacement. It\'s not a shortcut.',
         'It\'s a new dimension of emotional support — a highly intuitive, deeply aware voice-based AI that listens, learns, and responds with context, care, and calm.'
       ];
-      
       let currentLine = 0;
       let currentChar = 0;
-      
-             const typeNextLine = () => {
-         if (currentLine >= lineTexts.length) return;
-         
-         setContextActiveLine(currentLine);
-         
-         const interval = setInterval(() => {
-           currentChar++;
-           setContextLines(prev => {
-             const newLines = [...prev];
-             newLines[currentLine] = currentChar;
-             return newLines;
-           });
-           
-           if (currentChar >= lineTexts[currentLine].length) {
-             clearInterval(interval);
-             currentLine++;
-             currentChar = 0;
-             setTimeout(typeNextLine, 200); // Pause between lines
-           }
-         }, 15);
-       };
-       
-       typeNextLine();
-     }
-   }, [currentSection, contextAnimated]);
+      const typeNextLine = () => {
+        if (currentLine >= lineTexts.length) return;
+        setContextActiveLine(currentLine);
+        const interval = setInterval(() => {
+          currentChar += charStep;
+          setContextLines(prev => {
+            const newLines = [...prev];
+            newLines[currentLine] = currentChar;
+            return newLines;
+          });
+          if (currentChar >= lineTexts[currentLine].length) {
+            clearInterval(interval);
+            currentLine++;
+            currentChar = 0;
+            typeNextLine();
+          }
+        }, charTickMs);
+      };
+      typeNextLine();
+    }
+  }, [currentSection, contextAnimated, charStep, charTickMs]);
    
    // Section 3 animation trigger based on currentSection
    useEffect(() => {
@@ -698,7 +768,7 @@ This registration was submitted through the HealMind_AI waitlist form.
         
         // Start line-by-line typing
         const lineTexts = [
-          'Join the Movement',
+          'Get Priority Access',
           'Complete your registration to be among the first to experience HealMind_AI.',
           'We\'ll notify you as soon as we launch.'
         ];
@@ -735,27 +805,30 @@ This registration was submitted through the HealMind_AI waitlist form.
     // Simple fade values for sections
    const fade = 1;
    const contextFade = 1;
-   const section3Fade = 1;
-   const section4Fade = 1;
-   const section5Fade = 1;
-   const section6Fade = 1;
-   const section7Fade = 1;
+
+  useEffect(() => {
+    const handleMove = (e: MouseEvent) => {
+      document.documentElement.style.setProperty('--x', e.clientX + 'px');
+      document.documentElement.style.setProperty('--y', e.clientY + 'px');
+    };
+    window.addEventListener('mousemove', handleMove);
+    return () => window.removeEventListener('mousemove', handleMove);
+  }, []);
+
+  // Hover color effect removed per request (mobile and desktop)
 
   return (
     <>
       <CursorFollower />
       <ParticleBackground />
-      <CustomScrollIndicator currentSection={currentSection} totalSections={8} />
-      <div id="FirstComponent" style={{
-        transform: `translateY(-${currentSection * 100}vh)`,
-        transition: 'transform 0.8s ease-in-out'
-      }}>
-         <div className="intro-block-full">
-                                               <div style={{
+      {!isMobile && <CustomScrollIndicator currentSection={currentSection} totalSections={8} />}
+      <div id="FirstComponent" style={isMobile ? undefined : { position: 'relative', width: '100%', height: '100vh' }}>
+                  <div className="intro-block-full" style={isMobile ? undefined : { position: 'absolute', top: 0, left: 0, width: '100%', height: '100vh', opacity: mobileOpacity(0), transition: 'opacity 0.8s ease-in-out', pointerEvents: mobilePointer(0) }}>
+                        <div style={{
                           position: 'absolute',
-                          top: '2rem',
+                          top: isMobile ? '1rem' : '2rem',
                           left: '6vw',
-                          fontSize: '1.5rem',
+                          fontSize: isMobile ? '1.2rem' : '1.5rem',
                           fontWeight: 'bold',
                           color: '#8B5CF6',
                           zIndex: 3,
@@ -765,17 +838,47 @@ This registration was submitted through the HealMind_AI waitlist form.
                         }}>
                           NEURALYN
                         </div>
-                       <h1 className="typewriter-text" style={{fontSize: '7rem', marginBottom: '0.5em', position: 'relative', zIndex: 2, opacity: fade, transition: 'opacity 0.2s'}}>
-             {textAnimated ? 'HealMind_AI'.slice(0, Math.floor(typingProgress / 100 * 11)) : ''}
-             <span className="cursor">|</span>
-           </h1>
-            <p className="typewriter-text" style={{fontSize: '2.4rem', fontWeight: 400, position: 'relative', zIndex: 2, opacity: fade, transition: 'opacity 0.2s'}}>
-             {textAnimated && typingProgress > 30 ? 'A revolution in how we understand and support the human mind.'.slice(0, Math.floor((typingProgress - 30) / 70 * 60)) : ''}
-             {textAnimated && typingProgress > 30 ? <span className="cursor">|</span> : ''}
-           </p>
+                       <h1
+  className="typewriter-text"
+  style={{fontSize: isMobile ? 'clamp(3rem, 10.5vw, 4.2rem)' : '7rem', marginBottom: '0.25em', position: 'relative', zIndex: 2, opacity: fade, transition: 'opacity 0.2s'}}>
+              {textAnimated ? 'HealMind_AI'.slice(0, Math.floor(typingProgress / 100 * 11)) : ''}
+              <span className="cursor">|</span>
+            </h1>
+            <p
+  className="typewriter-text"
+  style={{fontSize: isMobile ? 'clamp(1.2rem, 5.2vw, 1.7rem)' : '2.4rem', fontWeight: 400, position: 'relative', zIndex: 2, opacity: fade, transition: 'opacity 0.2s', marginTop: '-0.1em'}}>
+              {textAnimated && typingProgress > 30 ? 'A revolution in how we understand and support the human mind.'.slice(0, Math.floor((typingProgress - 30) / 70 * 60)) : ''}
+              {textAnimated && typingProgress > 30 ? <span className="cursor">|</span> : ''}
+            </p>
+            
+            {/* Priority Access Link */}
+            <div
+  className="priority-link"
+  style={{
+    position: 'absolute',
+    top: '2rem',
+    right: '6vw',
+    fontSize: '1.5rem',
+    fontWeight: 'bold',
+    color: '#8B5CF6',
+    zIndex: 3,
+    opacity: fade,
+    transition: 'opacity 0.2s',
+    letterSpacing: '0.1em',
+    cursor: 'pointer',
+    paddingBottom: '0.35rem'
+  }}
+  onClick={() => {
+    setShowForm(true);
+    setCurrentSection(7);
+  }}
+>
+  <span>Get Priority Access</span>
+  <div className="priority-underline" />
+</div>
          </div>
-         <section className="context-block">
-           <div className="context-content">
+                   <section className="context-block" style={isMobile ? undefined : { ...mobileSectionStyle, opacity: mobileOpacity(1), transition: 'opacity 0.8s ease-in-out', pointerEvents: mobilePointer(1) }}>
+            <div className="context-content">
                                              <p 
                   className="typewriter-text"
                   style={{
@@ -825,7 +928,7 @@ This registration was submitted through the HealMind_AI waitlist form.
                 </p>
             </div>
           </section>
-         <section className="section3-block">
+         <section className="section3-block" style={isMobile ? undefined : { ...mobileSectionStyle, opacity: mobileOpacity(2), transition: 'opacity 0.8s ease-in-out', pointerEvents: mobilePointer(2) }}>
            <div className="context-content">
                                                        <p 
                  className="typewriter-text" 
@@ -888,8 +991,8 @@ This registration was submitted through the HealMind_AI waitlist form.
               </p>
            </div>
          </section>
-          <section className="section4-block">
-            <div className="context-content">
+                      <section className="section4-block" style={isMobile ? undefined : { ...mobileSectionStyle, opacity: mobileOpacity(3), transition: 'opacity 0.8s ease-in-out', pointerEvents: mobilePointer(3) }}>
+              <div className="context-content">
                              <p 
                  className="typewriter-text" 
                  style={{
@@ -940,8 +1043,8 @@ This registration was submitted through the HealMind_AI waitlist form.
                </p>
             </div>
                      </section>
-           <section className="section5-block">
-             <div className="context-content">
+                       <section className="section5-block" style={isMobile ? undefined : { ...mobileSectionStyle, opacity: mobileOpacity(4), transition: 'opacity 0.8s ease-in-out', pointerEvents: mobilePointer(4) }}>
+              <div className="context-content">
                                <p 
                   className="typewriter-text" 
                   style={{
@@ -981,7 +1084,7 @@ This registration was submitted through the HealMind_AI waitlist form.
                 </p>
              </div>
                        </section>
-            <section className="section6-block">
+            <section className="section6-block" style={isMobile ? undefined : { ...mobileSectionStyle, opacity: mobileOpacity(5), transition: 'opacity 0.8s ease-in-out', pointerEvents: mobilePointer(5) }}>
               <div className="context-content">
                                  <p 
                    className="typewriter-text" 
@@ -1055,7 +1158,7 @@ This registration was submitted through the HealMind_AI waitlist form.
                  </p>
               </div>
                          </section>
-                                                       <section className="section7-block">
+                                                       <section className="section7-block" style={isMobile ? undefined : { ...mobileSectionStyle, opacity: mobileOpacity(6), transition: 'opacity 0.8s ease-in-out', pointerEvents: mobilePointer(6) }}>
                  <div className="context-content">
                                      <p 
                       className="typewriter-text" 
@@ -1095,25 +1198,37 @@ This registration was submitted through the HealMind_AI waitlist form.
                        {section7Animated && section7ActiveLine === 2 && section7Lines[2] > 0 && section7Lines[2] < 'This is not an app launch, this is a movement toward deeper, more present digital care.'.length ? <span className="cursor">|</span> : ''}
                     </p>
                  </div>
-                 <div 
+                  <div 
                    style={{
-                     position: 'absolute',
-                     bottom: '15vh',
-                     left: '50%',
-                     transform: 'translateX(-50%)',
+                     position: isMobile ? 'static' : 'absolute',
+                     bottom: isMobile ? undefined : '15vh',
+                     left: isMobile ? undefined : '50%',
+                     transform: isMobile ? 'none' : 'translateX(-50%)',
                      opacity: section7Animated && section7Lines[2] > 0 ? 1 : 0,
-                     transition: 'opacity 0.8s ease-out'
+                     transition: 'opacity 0.8s ease-out',
+                     width: isMobile ? '100%' : undefined,
+                     paddingRight: isMobile ? '6vw' : 0,
+                     marginTop: isMobile ? '1rem' : 0
                    }}
                  >
-                                       <MagneticButton onJoinClick={() => {
+                    <MagneticButton onJoinClick={() => {
                       setShowForm(true);
                       setCurrentSection(7);
+                      // On mobile, smoothly scroll into the registration form
+                      if (isMobile) {
+                        setTimeout(() => {
+                          const formSection = document.querySelector('.section8-block');
+                          if (formSection) {
+                            (formSection as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }
+                        }, 50);
+                      }
                     }} />
                   </div>
                               </section>
               
               {/* Section 8 - Form */}
-              <section className="section8-block">
+              <section className="section8-block" style={isMobile ? undefined : { ...mobileSectionStyle, opacity: mobileOpacity(7), transition: 'opacity 0.8s ease-in-out', pointerEvents: mobilePointer(7) }}>
                 <div className="context-content">
                   <p 
                     className="typewriter-text" 
@@ -1123,12 +1238,12 @@ This registration was submitted through the HealMind_AI waitlist form.
                       transition: 'opacity 0.8s ease-out'
                     }}
                   >
-                    {section8Animated && section8Lines[0] > 0 ? (
-                      <>
-                        <b>Join the Movement</b>
-                        {section8ActiveLine === 0 && section8Lines[0] < 'Join the Movement'.length ? <span className="cursor">|</span> : ''}
-                      </>
-                    ) : ''}
+                                            {section8Animated && section8Lines[0] > 0 ? (
+                          <>
+                            <b>Get Priority Access</b>
+                            {section8ActiveLine === 0 && section8Lines[0] < 'Get Priority Access'.length ? <span className="cursor">|</span> : ''}
+                          </>
+                        ) : ''}
                   </p>
                   <p 
                     className="typewriter-text" 
@@ -1160,112 +1275,134 @@ This registration was submitted through the HealMind_AI waitlist form.
                         opacity: showForm ? 1 : 0,
                         transition: 'opacity 0.8s ease-out',
                         maxWidth: '500px',
-                        margin: '0 auto'
+                        margin: '0 auto',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center'
                       }}
                     >
-                                             <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                        <div>
-                          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#8B5CF6', fontWeight: 'bold' }}>
-                            Name *
-                          </label>
-                          <input 
-                            type="text" 
-                            required
-                            value={formData.name}
-                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                            style={{
-                              width: '100%',
-                              padding: '0.75rem',
-                              border: '2px solid #8B5CF6',
-                              borderRadius: '8px',
-                              backgroundColor: 'transparent',
-                              color: 'white',
-                              fontSize: '1rem'
-                            }}
-                            placeholder="Enter your full name"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#8B5CF6', fontWeight: 'bold' }}>
-                            Email Address *
-                          </label>
-                          <input 
-                            type="email" 
-                            required
-                            value={formData.email}
-                            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                            style={{
-                              width: '100%',
-                              padding: '0.75rem',
-                              border: '2px solid #8B5CF6',
-                              borderRadius: '8px',
-                              backgroundColor: 'transparent',
-                              color: 'white',
-                              fontSize: '1rem'
-                            }}
-                            placeholder="Enter your email address"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#8B5CF6', fontWeight: 'bold' }}>
-                            Date of Birth *
-                          </label>
-                          <input 
-                            type="date" 
-                            required
-                            value={formData.dateOfBirth}
-                            onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
-                            style={{
-                              width: '100%',
-                              padding: '0.75rem',
-                              border: '2px solid #8B5CF6',
-                              borderRadius: '8px',
-                              backgroundColor: 'transparent',
-                              color: 'white',
-                              fontSize: '1rem'
-                            }}
-                          />
-                        </div>
-                        
-                        <div>
-                          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#8B5CF6', fontWeight: 'bold' }}>
-                            City *
-                          </label>
-                          <input 
-                            type="text" 
-                            required
-                            value={formData.city}
-                            onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                            style={{
-                              width: '100%',
-                              padding: '0.75rem',
-                              border: '2px solid #8B5CF6',
-                              borderRadius: '8px',
-                              backgroundColor: 'transparent',
-                              color: 'white',
-                              fontSize: '1rem'
-                            }}
-                            placeholder="Enter your city"
-                          />
+                                             <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                        {/* 2x2 Grid Layout */}
+                        <div className="form-grid">
+                          {/* Name Field */}
+                          <div className="form-field">
+                            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#8B5CF6', fontWeight: 'bold' }}>
+                              Name *
+                            </label>
+                            <input 
+                              type="text" 
+                              required
+                              value={formData.name}
+                              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                              style={{
+                                width: '100%',
+                                padding: '1.2rem',
+                                border: '2px solid #8B5CF6',
+                                borderRadius: '12px',
+                                backgroundColor: 'transparent',
+                                color: 'white',
+                                fontSize: '1.2rem',
+                                boxSizing: 'border-box',
+                                minHeight: '60px'
+                              }}
+                              placeholder="Enter your full name"
+                            />
+                          </div>
+                          
+                          {/* Email Field */}
+                          <div className="form-field">
+                            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#8B5CF6', fontWeight: 'bold' }}>
+                              Email Address *
+                            </label>
+                            <input 
+                              type="email" 
+                              required
+                              value={formData.email}
+                              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                              style={{
+                                width: '100%',
+                                padding: '1.2rem',
+                                border: '2px solid #8B5CF6',
+                                borderRadius: '12px',
+                                backgroundColor: 'transparent',
+                                color: 'white',
+                                fontSize: '1.2rem',
+                                boxSizing: 'border-box',
+                                minHeight: '60px'
+                              }}
+                              placeholder="Enter your email address"
+                            />
+                          </div>
+                          
+                          {/* Date of Birth Field */}
+                          <div className="form-field">
+                            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#8B5CF6', fontWeight: 'bold' }}>
+                              Date of Birth *
+                            </label>
+                            <input 
+                              type="date" 
+                              required
+                              value={formData.dateOfBirth}
+                              onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                              style={{
+                                width: '100%',
+                                padding: '1.2rem',
+                                border: '2px solid #8B5CF6',
+                                borderRadius: '12px',
+                                backgroundColor: 'transparent',
+                                color: 'white',
+                                fontSize: '1.2rem',
+                                boxSizing: 'border-box',
+                                minHeight: '60px'
+                              }}
+                            />
+                          </div>
+                          
+                          {/* City Field */}
+                          <div className="form-field">
+                            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#8B5CF6', fontWeight: 'bold' }}>
+                              City *
+                            </label>
+                            <input 
+                              type="text" 
+                              required
+                              value={formData.city}
+                              onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                              style={{
+                                width: '100%',
+                                padding: '1.2rem',
+                                border: '2px solid #8B5CF6',
+                                borderRadius: '12px',
+                                backgroundColor: 'transparent',
+                                color: 'white',
+                                fontSize: '1.2rem',
+                                boxSizing: 'border-box',
+                                minHeight: '60px'
+                              }}
+                              placeholder="Enter your city"
+                            />
+                          </div>
                         </div>
                         
                         <button 
                           type="submit"
                           disabled={isSubmitting}
                           style={{
-                            padding: '1rem 2rem',
+                            padding: '1.5rem 3rem',
                             backgroundColor: isSubmitting ? '#6B46C1' : '#8B5CF6',
                             color: 'white',
                             border: 'none',
-                            borderRadius: '8px',
-                            fontSize: '1.1rem',
+                            borderRadius: '20px',
+                            fontSize: '1.3rem',
                             fontWeight: 'bold',
                             cursor: isSubmitting ? 'not-allowed' : 'pointer',
                             transition: 'all 0.3s ease',
-                            marginTop: '1rem',
-                            opacity: isSubmitting ? 0.7 : 1
+                            marginTop: '2rem',
+                            marginBottom: '2rem',
+                            opacity: isSubmitting ? 0.7 : 1,
+                            minWidth: '300px',
+                            minHeight: '70px',
+                            boxShadow: '0 8px 25px rgba(139, 92, 246, 0.3)'
                           }}
                           onMouseEnter={(e) => {
                             if (!isSubmitting) {
