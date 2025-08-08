@@ -19,7 +19,7 @@ function CursorFollower() {
   return <div ref={followerRef} className="cursor-follower" />;
 }
 
-function MagneticButton() {
+function MagneticButton({ onJoinClick }: { onJoinClick: () => void }) {
   const btnRef = useRef<HTMLButtonElement>(null);
   const rippleRef = useRef<HTMLSpanElement>(null);
 
@@ -62,6 +62,9 @@ function MagneticButton() {
       setTimeout(() => {
         btn.classList.remove('clicked');
       }, 600);
+      
+      // Trigger form opening
+      onJoinClick();
     }
   };
 
@@ -150,6 +153,49 @@ function ParticleBackground() {
   return <canvas ref={canvasRef} className="particle-canvas" />;
 }
 
+function CustomScrollIndicator({ currentSection, totalSections }: { currentSection: number, totalSections: number }) {
+  const progress = ((currentSection + 1) / totalSections) * 100;
+  
+  return (
+    <div style={{
+      position: 'fixed',
+      right: '4px',
+      top: '0',
+      height: '100vh',
+      width: '3px',
+      backgroundColor: 'rgba(139, 92, 246, 0.1)',
+      zIndex: 1000,
+      pointerEvents: 'none'
+    }}>
+      {/* Progress bar */}
+      <div style={{
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: `${progress}%`,
+        background: 'linear-gradient(to bottom, #8B5CF6, #7C3AED)',
+        transition: 'height 0.8s ease-in-out',
+        boxShadow: '0 0 10px rgba(139, 92, 246, 0.3)'
+      }} />
+      
+      {/* Current section indicator */}
+      <div style={{
+        position: 'absolute',
+        right: '-3px',
+        top: `${progress}%`,
+        width: '9px',
+        height: '9px',
+        backgroundColor: '#8B5CF6',
+        borderRadius: '50%',
+        transform: 'translateY(-50%)',
+        transition: 'top 0.8s ease-in-out',
+        boxShadow: '0 0 10px rgba(139, 92, 246, 0.5)'
+      }} />
+    </div>
+  );
+}
+
 function App() {
   const [currentSection, setCurrentSection] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -167,6 +213,8 @@ function App() {
   const [section6Progress, setSection6Progress] = useState(0);
   const [section7Animated, setSection7Animated] = useState(false);
   const [section7Progress, setSection7Progress] = useState(0);
+  const [section8Animated, setSection8Animated] = useState(false);
+  const [section8Progress, setSection8Progress] = useState(0);
   
   // New state for line-by-line typing
   const [contextLines, setContextLines] = useState([0, 0, 0, 0]); // [line1, line2, line3, line4]
@@ -175,6 +223,7 @@ function App() {
   const [section5Lines, setSection5Lines] = useState([0, 0, 0]); // [line1, line2, line3]
   const [section6Lines, setSection6Lines] = useState([0, 0, 0, 0, 0, 0]); // [line1, line2, line3, line4, line5, line6]
   const [section7Lines, setSection7Lines] = useState([0, 0, 0]); // [line1, line2, line3]
+  const [section8Lines, setSection8Lines] = useState([0, 0, 0]); // [line1, line2, line3]
   
   // State to track which line is currently being typed
   const [contextActiveLine, setContextActiveLine] = useState(0);
@@ -183,6 +232,18 @@ function App() {
   const [section5ActiveLine, setSection5ActiveLine] = useState(0);
   const [section6ActiveLine, setSection6ActiveLine] = useState(0);
   const [section7ActiveLine, setSection7ActiveLine] = useState(0);
+  const [section8ActiveLine, setSection8ActiveLine] = useState(0);
+  
+      // Form state
+    const [showForm, setShowForm] = useState(false);
+    const [formData, setFormData] = useState({
+      name: '',
+      email: '',
+      dateOfBirth: '',
+      city: ''
+    });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitMessage, setSubmitMessage] = useState('');
   
   useEffect(() => {
     // Disable scroll restoration to prevent browser from remembering position
@@ -211,6 +272,8 @@ function App() {
     setSection6Progress(0);
     setSection7Animated(false);
     setSection7Progress(0);
+    setSection8Animated(false);
+    setSection8Progress(0);
     
     // Reset all line-by-line typing states
     setContextLines([0, 0, 0, 0, 0]);
@@ -219,6 +282,7 @@ function App() {
     setSection5Lines([0, 0, 0]);
     setSection6Lines([0, 0, 0, 0, 0, 0]);
     setSection7Lines([0, 0, 0]);
+    setSection8Lines([0, 0, 0]);
     
     // Reset all active line states
     setContextActiveLine(0);
@@ -227,6 +291,18 @@ function App() {
     setSection5ActiveLine(0);
     setSection6ActiveLine(0);
     setSection7ActiveLine(0);
+    setSection8ActiveLine(0);
+    
+    // Reset form state
+    setShowForm(false);
+    setFormData({
+      name: '',
+      email: '',
+      dateOfBirth: '',
+      city: ''
+    });
+    setIsSubmitting(false);
+    setSubmitMessage('');
     
     // Force immediate visual reset to section 1 with a more robust approach
     setTimeout(() => {
@@ -275,7 +351,76 @@ function App() {
   useEffect(() => {
     window.addEventListener('wheel', handleWheel, { passive: false });
     return () => window.removeEventListener('wheel', handleWheel);
-  }, [handleWheel]);
+      }, [handleWheel]);
+
+    // Form submission handler
+    const handleFormSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setIsSubmitting(true);
+      setSubmitMessage('');
+
+      try {
+        // Create structured email content
+        const emailContent = `
+New HealMind_AI Waitlist Registration
+
+Registration Details:
+====================
+Name: ${formData.name}
+Email: ${formData.email}
+Date of Birth: ${formData.dateOfBirth}
+City: ${formData.city}
+
+Registration Information:
+=======================
+Registration Date: ${new Date().toLocaleString()}
+Source: HealMind_AI Website Waitlist
+IP Address: ${await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(data => data.ip).catch(() => 'Unknown')}
+
+Technical Details:
+=================
+User Agent: ${navigator.userAgent}
+Platform: ${navigator.platform}
+Language: ${navigator.language}
+Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}
+
+This registration was submitted through the HealMind_AI waitlist form.
+        `;
+
+        // For production, you would use a proper email service
+        // Here are some options:
+        // 1. EmailJS (client-side)
+        // 2. SendGrid API
+        // 3. Your own backend server
+        
+        // For now, we'll simulate the email sending
+        console.log('Email to: main@neuralyn.health');
+        console.log('Subject: New HealMind_AI Waitlist Registration');
+        console.log('Content:', emailContent);
+        
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        setSubmitMessage('Registration submitted successfully! We\'ll notify you soon.');
+        setFormData({
+          name: '',
+          email: '',
+          dateOfBirth: '',
+          city: ''
+        });
+        
+        // Auto-hide success message after 5 seconds
+        setTimeout(() => {
+          setSubmitMessage('');
+        }, 5000);
+        
+      } catch (error) {
+        setSubmitMessage('Error submitting registration. Please try again.');
+        console.error('Form submission error:', error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
   useEffect(() => {
     // Start typing animation
     const timer = setTimeout(() => {
@@ -343,7 +488,7 @@ function App() {
        // Start line-by-line typing
        const lineTexts = [
          'Always Available. Always Respectful. Always Yours.',
-         'HealMind_AI doesn\'t just respond — it adapts to your emotional tone, your silence, and your pace. With unparalleled sensitivity and clarity, it becomes a companion for your mind — built to assist without intruding, support without diagnosing, and understand without labeling.',
+         'HealMind_AI doesn\'t just respond, it adapts to your emotional tone, your silence, and your pace. With unparalleled sensitivity and clarity, it becomes a companion for your mind, built to assist without intruding, support without diagnosing, and understand without labeling.',
          '• Works in real time, through conversation.',
          '• Prioritizes your privacy and emotional safety.',
          '• Designed to scale personal reflection and daily balance.'
@@ -387,8 +532,8 @@ function App() {
        const lineTexts = [
          'A New Standard for Emotional Intelligence',
          'HealMind_AI is not a chatbot. It\'s not an app that parrots back scripted affirmations. It\'s a thoughtfully engineered system designed to support how people actually feel, especially when they can\'t always put it into words.',
-         'Behind the scenes, it interprets, adapts, and speaks — not just from data, but from a deep architecture trained to understand nuance, tone, and timing.',
-         'All of this is built to feel invisible — just natural, intuitive support that\'s with you when you need it.'
+         'Behind the scenes, it interprets, adapts, and speaks, not just from data, but from a deep architecture trained to understand nuance, tone, and timing.',
+         'All of this is built to feel invisible, just natural, intuitive support that\'s with you when you need it.'
        ];
        
        let currentLine = 0;
@@ -427,9 +572,9 @@ function App() {
        
        // Start line-by-line typing
        const lineTexts = [
-         'Designed for This Generation — and the Next',
-         'We believe emotional well-being shouldn\'t be reactive. HealMind_AI is a proactive system — not in place of human connection, but in harmony with it. It meets people where they are: through conversation, on their terms, in their time.',
-         'Whether you\'re a student, entrepreneur, parent, artist, or simply navigating this fast-moving world — HealMind_AI is here to walk with you, not ahead or behind.'
+         'Designed for This Generation and the Next',
+         'We believe emotional well-being shouldn\'t be reactive. HealMind_AI is a proactive system, not in place of human connection, but in harmony with it. It meets people where they are: through conversation, on their terms, in their time.',
+         'Whether you\'re a student, entrepreneur, parent, artist, or simply navigating this fast-moving world, HealMind_AI is here to walk with you, not ahead or behind.'
        ];
        
        let currentLine = 0;
@@ -473,7 +618,7 @@ function App() {
          '• Security as the foundation, not an afterthought.',
          '• Compliance with healthcare best practices, from privacy to access.',
          '• Scalability to grow with users, not grow away from them.',
-         'We\'re not chasing hype. We\'re building trust — line by line, session by session.'
+         'We\'re not chasing hype. We\'re building trust, line by line, session by session.'
        ];
        
        let currentLine = 0;
@@ -514,7 +659,7 @@ function App() {
        const lineTexts = [
          'Join the Waitlist',
          'Be among the first to experience the future of voice-based emotional intelligence.',
-         'This is not an app launch — this is a movement toward deeper, more present digital care.'
+         'This is not an app launch, this is a movement toward deeper, more present digital care.'
        ];
        
        let currentLine = 0;
@@ -544,9 +689,50 @@ function App() {
        
        typeNextLine();
      }
-   }, [currentSection, section7Animated]);
-   
-   // Simple fade values for sections
+       }, [currentSection, section7Animated]);
+    
+    // Section 8 animation trigger based on currentSection
+    useEffect(() => {
+      if (currentSection === 7 && !section8Animated) {
+        setSection8Animated(true);
+        
+        // Start line-by-line typing
+        const lineTexts = [
+          'Join the Movement',
+          'Complete your registration to be among the first to experience HealMind_AI.',
+          'We\'ll notify you as soon as we launch.'
+        ];
+        
+        let currentLine = 0;
+        let currentChar = 0;
+        
+        const typeNextLine = () => {
+          if (currentLine >= lineTexts.length) return;
+          
+          setSection8ActiveLine(currentLine);
+          
+          const interval = setInterval(() => {
+            currentChar++;
+            setSection8Lines(prev => {
+              const newLines = [...prev];
+              newLines[currentLine] = currentChar;
+              return newLines;
+            });
+            
+            if (currentChar >= lineTexts[currentLine].length) {
+              clearInterval(interval);
+              currentLine++;
+              currentChar = 0;
+              setTimeout(typeNextLine, 200); // Pause between lines
+            }
+          }, 15);
+        };
+        
+        typeNextLine();
+      }
+    }, [currentSection, section8Animated]);
+    
+    // Simple fade values for sections
    const fade = 1;
    const contextFade = 1;
    const section3Fade = 1;
@@ -559,6 +745,7 @@ function App() {
     <>
       <CursorFollower />
       <ParticleBackground />
+      <CustomScrollIndicator currentSection={currentSection} totalSections={8} />
       <div id="FirstComponent" style={{
         transform: `translateY(-${currentSection * 100}vh)`,
         transition: 'transform 0.8s ease-in-out'
@@ -579,16 +766,16 @@ function App() {
                           NEURALYN
                         </div>
                        <h1 className="typewriter-text" style={{fontSize: '7rem', marginBottom: '0.5em', position: 'relative', zIndex: 2, opacity: fade, transition: 'opacity 0.2s'}}>
-              {textAnimated ? 'HealMind_AI'.slice(0, Math.floor(typingProgress / 100 * 11)) : ''}
-              <span className="cursor">|</span>
-            </h1>
+             {textAnimated ? 'HealMind_AI'.slice(0, Math.floor(typingProgress / 100 * 11)) : ''}
+             <span className="cursor">|</span>
+           </h1>
             <p className="typewriter-text" style={{fontSize: '2.4rem', fontWeight: 400, position: 'relative', zIndex: 2, opacity: fade, transition: 'opacity 0.2s'}}>
-              {textAnimated && typingProgress > 30 ? 'A revolution in how we understand and support the human mind.'.slice(0, Math.floor((typingProgress - 30) / 70 * 60)) : ''}
-              {textAnimated && typingProgress > 30 ? <span className="cursor">|</span> : ''}
-            </p>
+             {textAnimated && typingProgress > 30 ? 'A revolution in how we understand and support the human mind.'.slice(0, Math.floor((typingProgress - 30) / 70 * 60)) : ''}
+             {textAnimated && typingProgress > 30 ? <span className="cursor">|</span> : ''}
+           </p>
          </div>
-                   <section className="context-block">
-            <div className="context-content">
+         <section className="context-block">
+           <div className="context-content">
                                              <p 
                   className="typewriter-text"
                   style={{
@@ -600,7 +787,7 @@ function App() {
                                      <b>{contextAnimated ? 'The world is overwhelmed.'.slice(0, contextLines[0]) : ''}</b>
                    {contextAnimated && contextActiveLine === 0 && contextLines[0] > 0 && contextLines[0] < 'The world is overwhelmed.'.length ? <span className="cursor">|</span> : ''}
                    <br />
-                   {contextAnimated && contextLines[1] > 0 ? 'Burnout, overstimulation, and emotional fatigue have become part of everyday life. But support systems aren\'t scaling fast enough — especially in moments of silence, in the midnight thoughts, or when someone needs to be heard right now.'.slice(0, contextLines[1]) : ''}
+                   {contextAnimated && contextLines[1] > 0 ? 'Burnout, overstimulation, and emotional fatigue have become part of everyday life. But support systems aren\'t scaling fast enough, especially in moments of silence, in the midnight thoughts, or when someone needs to be heard right now.'.slice(0, contextLines[1]) : ''}
                    {contextAnimated && contextActiveLine === 1 && contextLines[1] > 0 && contextLines[1] < 'Burnout, overstimulation, and emotional fatigue have become part of everyday life. But support systems aren\'t scaling fast enough — especially in moments of silence, in the midnight thoughts, or when someone needs to be heard right now.'.length ? <span className="cursor">|</span> : ''}
                 </p>
                                                            <p 
@@ -633,8 +820,8 @@ function App() {
                      transition: 'opacity 0.8s ease-out'
                    }}
                  >
-                   {contextAnimated && contextLines[4] > 0 ? 'It\'s a new dimension of emotional support — a highly intuitive, deeply aware voice-based AI that listens, learns, and responds with context, care, and calm.'.slice(0, contextLines[4]) : ''}
-                   {contextAnimated && contextActiveLine === 4 && contextLines[4] > 0 && contextLines[4] < 'It\'s a new dimension of emotional support — a highly intuitive, deeply aware voice-based AI that listens, learns, and responds with context, care, and calm.'.length ? <span className="cursor">|</span> : ''}
+                   {contextAnimated && contextLines[4] > 0 ? 'It\'s a new dimension of emotional support, a highly intuitive, deeply aware voice-based AI that listens, learns, and responds with context, care, and calm.'.slice(0, contextLines[4]) : ''}
+                   {contextAnimated && contextActiveLine === 4 && contextLines[4] > 0 && contextLines[4] < 'It\'s a new dimension of emotional support, a highly intuitive, deeply aware voice-based AI that listens, learns, and responds with context, care, and calm.'.length ? <span className="cursor">|</span> : ''}
                 </p>
             </div>
           </section>
@@ -663,8 +850,8 @@ function App() {
                   transition: 'opacity 0.8s ease-out'
                 }}
               >
-                                                                   {section3Animated && section3Lines[1] > 0 ? 'HealMind_AI doesn\'t just respond — it adapts to your emotional tone, your silence, and your pace. With unparalleled sensitivity and clarity, it becomes a companion for your mind — built to assist without intruding, support without diagnosing, and understand without labeling.'.slice(0, section3Lines[1]) : ''}
-                                  {section3Animated && section3ActiveLine === 1 && section3Lines[1] > 0 && section3Lines[1] < 'HealMind_AI doesn\'t just respond — it adapts to your emotional tone, your silence, and your pace. With unparalleled sensitivity and clarity, it becomes a companion for your mind — built to assist without intruding, support without diagnosing, and understand without labeling.'.length ? <span className="cursor">|</span> : ''}
+                                                                   {section3Animated && section3Lines[1] > 0 ? 'HealMind_AI doesn\'t just respond, it adapts to your emotional tone, your silence, and your pace. With unparalleled sensitivity and clarity, it becomes a companion for your mind, built to assist without intruding, support without diagnosing, and understand without labeling.'.slice(0, section3Lines[1]) : ''}
+                                  {section3Animated && section3ActiveLine === 1 && section3Lines[1] > 0 && section3Lines[1] < 'HealMind_AI doesn\'t just respond, it adapts to your emotional tone, your silence, and your pace. With unparalleled sensitivity and clarity, it becomes a companion for your mind, built to assist without intruding, support without diagnosing, and understand without labeling.'.length ? <span className="cursor">|</span> : ''}
                </p>
                                                          <p 
                   className="typewriter-text" 
@@ -700,7 +887,7 @@ function App() {
                   {section3Animated && section3ActiveLine === 4 && section3Lines[4] > 0 && section3Lines[4] < '• Designed to scale personal reflection and daily balance.'.length ? <span className="cursor">|</span> : ''}
               </p>
            </div>
-                   </section>
+         </section>
           <section className="section4-block">
             <div className="context-content">
                              <p 
@@ -737,8 +924,8 @@ function App() {
                     transition: 'opacity 0.8s ease-out'
                   }}
                 >
-                                     {section4Animated && section4Lines[2] > 0 ? 'Behind the scenes, it interprets, adapts, and speaks — not just from data, but from a deep architecture trained to understand nuance, tone, and timing.'.slice(0, section4Lines[2]) : ''}
-                   {section4Animated && section4ActiveLine === 2 && section4Lines[2] > 0 && section4Lines[2] < 'Behind the scenes, it interprets, adapts, and speaks — not just from data, but from a deep architecture trained to understand nuance, tone, and timing.'.length ? <span className="cursor">|</span> : ''}
+                                     {section4Animated && section4Lines[2] > 0 ? 'Behind the scenes, it interprets, adapts, and speaks, not just from data, but from a deep architecture trained to understand nuance, tone, and timing.'.slice(0, section4Lines[2]) : ''}
+                   {section4Animated && section4ActiveLine === 2 && section4Lines[2] > 0 && section4Lines[2] < 'Behind the scenes, it interprets, adapts, and speaks, not just from data, but from a deep architecture trained to understand nuance, tone, and timing.'.length ? <span className="cursor">|</span> : ''}
                 </p>
                               <p 
                   className="typewriter-text" 
@@ -748,8 +935,8 @@ function App() {
                     transition: 'opacity 0.8s ease-out'
                   }}
                 >
-                                     {section4Animated && section4Lines[3] > 0 ? 'All of this is built to feel invisible — just natural, intuitive support that\'s with you when you need it.'.slice(0, section4Lines[3]) : ''}
-                   {section4Animated && section4ActiveLine === 3 && section4Lines[3] > 0 && section4Lines[3] < 'All of this is built to feel invisible — just natural, intuitive support that\'s with you when you need it.'.length ? <span className="cursor">|</span> : ''}
+                                     {section4Animated && section4Lines[3] > 0 ? 'All of this is built to feel invisible, just natural, intuitive support that\'s with you when you need it.'.slice(0, section4Lines[3]) : ''}
+                   {section4Animated && section4ActiveLine === 3 && section4Lines[3] > 0 && section4Lines[3] < 'All of this is built to feel invisible, just natural, intuitive support that\'s with you when you need it.'.length ? <span className="cursor">|</span> : ''}
                </p>
             </div>
                      </section>
@@ -765,8 +952,8 @@ function App() {
                 >
                                      {section5Animated && section5Lines[0] > 0 ? (
                      <>
-                       <b>Designed for This Generation — and the Next</b>
-                                               {section5ActiveLine === 0 && section5Lines[0] < 'Designed for This Generation — and the Next'.length ? <span className="cursor">|</span> : ''}
+                       <b>Designed for This Generation, and the Next</b>
+                                               {section5ActiveLine === 0 && section5Lines[0] < 'Designed for This Generation and the Next'.length ? <span className="cursor">|</span> : ''}
                      </>
                    ) : ''}
                 </p>
@@ -778,8 +965,8 @@ function App() {
                     transition: 'opacity 0.8s ease-out'
                   }}
                 >
-                                     {section5Animated && section5Lines[1] > 0 ? 'We believe emotional well-being shouldn\'t be reactive. HealMind_AI is a proactive system — not in place of human connection, but in harmony with it. It meets people where they are: through conversation, on their terms, in their time.'.slice(0, section5Lines[1]) : ''}
-                   {section5Animated && section5ActiveLine === 1 && section5Lines[1] > 0 && section5Lines[1] < 'We believe emotional well-being shouldn\'t be reactive. HealMind_AI is a proactive system — not in place of human connection, but in harmony with it. It meets people where they are: through conversation, on their terms, in their time.'.length ? <span className="cursor">|</span> : ''}
+                                     {section5Animated && section5Lines[1] > 0 ? 'We believe emotional well-being shouldn\'t be reactive. HealMind_AI is a proactive system, not in place of human connection, but in harmony with it. It meets people where they are: through conversation, on their terms, in their time.'.slice(0, section5Lines[1]) : ''}
+                   {section5Animated && section5ActiveLine === 1 && section5Lines[1] > 0 && section5Lines[1] < 'We believe emotional well-being shouldn\'t be reactive. HealMind_AI is a proactive system, not in place of human connection, but in harmony with it. It meets people where they are: through conversation, on their terms, in their time.'.length ? <span className="cursor">|</span> : ''}
                 </p>
                                <p 
                   className="typewriter-text" 
@@ -789,8 +976,8 @@ function App() {
                     transition: 'opacity 0.8s ease-out'
                   }}
                 >
-                                     {section5Animated && section5Lines[2] > 0 ? 'Whether you\'re a student, entrepreneur, parent, artist, or simply navigating this fast-moving world — HealMind_AI is here to walk with you, not ahead or behind.'.slice(0, section5Lines[2]) : ''}
-                   {section5Animated && section5ActiveLine === 2 && section5Lines[2] > 0 && section5Lines[2] < 'Whether you\'re a student, entrepreneur, parent, artist, or simply navigating this fast-moving world — HealMind_AI is here to walk with you, not ahead or behind.'.length ? <span className="cursor">|</span> : ''}
+                                     {section5Animated && section5Lines[2] > 0 ? 'Whether you\'re a student, entrepreneur, parent, artist, or simply navigating this fast-moving world, HealMind_AI is here to walk with you, not ahead or behind.'.slice(0, section5Lines[2]) : ''}
+                   {section5Animated && section5ActiveLine === 2 && section5Lines[2] > 0 && section5Lines[2] < 'Whether you\'re a student, entrepreneur, parent, artist, or simply navigating this fast-moving world, HealMind_AI is here to walk with you, not ahead or behind.'.length ? <span className="cursor">|</span> : ''}
                 </p>
              </div>
                        </section>
@@ -863,8 +1050,8 @@ function App() {
                      transition: 'opacity 0.8s ease-out'
                    }}
                  >
-                                       {section6Animated && section6Lines[5] > 0 ? 'We\'re not chasing hype. We\'re building trust — line by line, session by session.'.slice(0, section6Lines[5]) : ''}
-                    {section6Animated && section6ActiveLine === 5 && section6Lines[5] > 0 && section6Lines[5] < 'We\'re not chasing hype. We\'re building trust — line by line, session by session.'.length ? <span className="cursor">|</span> : ''}
+                                       {section6Animated && section6Lines[5] > 0 ? 'We\'re not chasing hype. We\'re building trust, line by line, session by session.'.slice(0, section6Lines[5]) : ''}
+                    {section6Animated && section6ActiveLine === 5 && section6Lines[5] > 0 && section6Lines[5] < 'We\'re not chasing hype. We\'re building trust, line by line, session by session.'.length ? <span className="cursor">|</span> : ''}
                  </p>
               </div>
                          </section>
@@ -904,8 +1091,8 @@ function App() {
                         transition: 'opacity 0.8s ease-out'
                       }}
                     >
-                                             {section7Animated && section7Lines[2] > 0 ? 'This is not an app launch — this is a movement toward deeper, more present digital care.'.slice(0, section7Lines[2]) : ''}
-                       {section7Animated && section7ActiveLine === 2 && section7Lines[2] > 0 && section7Lines[2] < 'This is not an app launch — this is a movement toward deeper, more present digital care.'.length ? <span className="cursor">|</span> : ''}
+                                             {section7Animated && section7Lines[2] > 0 ? 'This is not an app launch, this is a movement toward deeper, more present digital care.'.slice(0, section7Lines[2]) : ''}
+                       {section7Animated && section7ActiveLine === 2 && section7Lines[2] > 0 && section7Lines[2] < 'This is not an app launch, this is a movement toward deeper, more present digital care.'.length ? <span className="cursor">|</span> : ''}
                     </p>
                  </div>
                  <div 
@@ -918,9 +1105,202 @@ function App() {
                      transition: 'opacity 0.8s ease-out'
                    }}
                  >
-                   <MagneticButton />
-                 </div>
-                             </section>
+                                       <MagneticButton onJoinClick={() => {
+                      setShowForm(true);
+                      setCurrentSection(7);
+                    }} />
+                  </div>
+                              </section>
+              
+              {/* Section 8 - Form */}
+              <section className="section8-block">
+                <div className="context-content">
+                  <p 
+                    className="typewriter-text" 
+                    style={{
+                      marginBottom: '1.2em',
+                      opacity: section8Animated ? 1 : 0,
+                      transition: 'opacity 0.8s ease-out'
+                    }}
+                  >
+                    {section8Animated && section8Lines[0] > 0 ? (
+                      <>
+                        <b>Join the Movement</b>
+                        {section8ActiveLine === 0 && section8Lines[0] < 'Join the Movement'.length ? <span className="cursor">|</span> : ''}
+                      </>
+                    ) : ''}
+                  </p>
+                  <p 
+                    className="typewriter-text" 
+                    style={{
+                      marginBottom: '1.2em',
+                      opacity: section8Animated ? 1 : 0,
+                      transition: 'opacity 0.8s ease-out'
+                    }}
+                  >
+                    {section8Animated && section8Lines[1] > 0 ? 'Complete your registration to be among the first to experience HealMind_AI.'.slice(0, section8Lines[1]) : ''}
+                    {section8Animated && section8ActiveLine === 1 && section8Lines[1] > 0 && section8Lines[1] < 'Complete your registration to be among the first to experience HealMind_AI.'.length ? <span className="cursor">|</span> : ''}
+                  </p>
+                  <p 
+                    className="typewriter-text" 
+                    style={{
+                      marginBottom: '2.5em',
+                      opacity: section8Animated ? 1 : 0,
+                      transition: 'opacity 0.8s ease-out'
+                    }}
+                  >
+                    {section8Animated && section8Lines[2] > 0 ? 'We\'ll notify you as soon as we launch.'.slice(0, section8Lines[2]) : ''}
+                    {section8Animated && section8ActiveLine === 2 && section8Lines[2] > 0 && section8Lines[2] < 'We\'ll notify you as soon as we launch.'.length ? <span className="cursor">|</span> : ''}
+                  </p>
+                  
+                  {/* Form */}
+                  {showForm && (
+                    <div 
+                      style={{
+                        opacity: showForm ? 1 : 0,
+                        transition: 'opacity 0.8s ease-out',
+                        maxWidth: '500px',
+                        margin: '0 auto'
+                      }}
+                    >
+                                             <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#8B5CF6', fontWeight: 'bold' }}>
+                            Name *
+                          </label>
+                          <input 
+                            type="text" 
+                            required
+                            value={formData.name}
+                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                            style={{
+                              width: '100%',
+                              padding: '0.75rem',
+                              border: '2px solid #8B5CF6',
+                              borderRadius: '8px',
+                              backgroundColor: 'transparent',
+                              color: 'white',
+                              fontSize: '1rem'
+                            }}
+                            placeholder="Enter your full name"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#8B5CF6', fontWeight: 'bold' }}>
+                            Email Address *
+                          </label>
+                          <input 
+                            type="email" 
+                            required
+                            value={formData.email}
+                            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                            style={{
+                              width: '100%',
+                              padding: '0.75rem',
+                              border: '2px solid #8B5CF6',
+                              borderRadius: '8px',
+                              backgroundColor: 'transparent',
+                              color: 'white',
+                              fontSize: '1rem'
+                            }}
+                            placeholder="Enter your email address"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#8B5CF6', fontWeight: 'bold' }}>
+                            Date of Birth *
+                          </label>
+                          <input 
+                            type="date" 
+                            required
+                            value={formData.dateOfBirth}
+                            onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                            style={{
+                              width: '100%',
+                              padding: '0.75rem',
+                              border: '2px solid #8B5CF6',
+                              borderRadius: '8px',
+                              backgroundColor: 'transparent',
+                              color: 'white',
+                              fontSize: '1rem'
+                            }}
+                          />
+                        </div>
+                        
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#8B5CF6', fontWeight: 'bold' }}>
+                            City *
+                          </label>
+                          <input 
+                            type="text" 
+                            required
+                            value={formData.city}
+                            onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                            style={{
+                              width: '100%',
+                              padding: '0.75rem',
+                              border: '2px solid #8B5CF6',
+                              borderRadius: '8px',
+                              backgroundColor: 'transparent',
+                              color: 'white',
+                              fontSize: '1rem'
+                            }}
+                            placeholder="Enter your city"
+                          />
+                        </div>
+                        
+                        <button 
+                          type="submit"
+                          disabled={isSubmitting}
+                          style={{
+                            padding: '1rem 2rem',
+                            backgroundColor: isSubmitting ? '#6B46C1' : '#8B5CF6',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontSize: '1.1rem',
+                            fontWeight: 'bold',
+                            cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                            transition: 'all 0.3s ease',
+                            marginTop: '1rem',
+                            opacity: isSubmitting ? 0.7 : 1
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isSubmitting) {
+                              e.currentTarget.style.backgroundColor = '#7C3AED';
+                              e.currentTarget.style.transform = 'translateY(-2px)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isSubmitting) {
+                              e.currentTarget.style.backgroundColor = '#8B5CF6';
+                              e.currentTarget.style.transform = 'translateY(0)';
+                            }
+                          }}
+                        >
+                          {isSubmitting ? 'Submitting...' : 'Submit Registration'}
+                        </button>
+                        
+                        {submitMessage && (
+                          <div style={{
+                            marginTop: '1rem',
+                            padding: '0.75rem',
+                            borderRadius: '8px',
+                            backgroundColor: submitMessage.includes('Error') ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)',
+                            color: submitMessage.includes('Error') ? '#EF4444' : '#22C55E',
+                            textAlign: 'center',
+                            fontSize: '0.9rem'
+                          }}>
+                            {submitMessage}
+                          </div>
+                        )}
+                      </form>
+                    </div>
+                  )}
+         </div>
+              </section>
       </div>
     </>
   )
